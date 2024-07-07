@@ -1,0 +1,24 @@
+{
+    "background": [0, 0, 255],
+    "tiles": [
+        "water_calm.json"
+    ],
+    "props": [
+        "oak_tree_1.json",
+        "oak_tree_2.json"
+    ],
+    "sectors": {
+        "0|0": {
+            "tiles": [
+                [ 0, 0, 0, 0 ],
+                [ 0, 0, 0, 0 ],
+                [ 0, 0, 0, 0 ],
+                [ 0, 0, 0, 0 ]
+            ],
+            "props": [
+                { "type": 0, "at": [1.0, 1.0] },
+                { "type": 1, "at": [3.0, 3.0] }
+            ]
+        }
+    }
+}

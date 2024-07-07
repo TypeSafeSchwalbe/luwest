@@ -1,0 +1,5 @@
+{
+    "texture": "water_tiles.png",
+    "at": [0, 0],
+    "size": [16, 16]
+}

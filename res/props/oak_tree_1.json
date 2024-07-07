@@ -1,0 +1,8 @@
+{
+    "sprite": "oak_tree_1.png",
+    "size": [4.0, 5.0],
+    "anchor": [31, 79],
+    "colliders": [
+        { "at": [28, 74], "size": [7, 6] }
+    ]
+}
