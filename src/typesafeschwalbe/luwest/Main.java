@@ -13,7 +13,8 @@ public class Main {
     
     public static void main(String[] args) {
         try {
-            new Engine("Luwest", new Scene("overworld.json"));
+            Engine.init("Luwest");
+            Engine.startScene(new Scene("overworld.json"));
         } catch(Exception e) {
             Main.handleCrash(e);
         }

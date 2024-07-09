@@ -3,12 +3,30 @@ package typesafeschwalbe.luwest.engine;
 
 public class Engine {
 
-    private final Window window;
-    public Scene scene;
+    private static Engine instance = null;
 
-    public Engine(String title, Scene scene) {
-        this.window = new Window(title, 854, 480);
-        this.scene = scene;
+    private static Engine getInstance() {
+        if(Engine.instance == null) {
+            throw new RuntimeException("Engine has not yet been initialized!");
+        }
+        return Engine.instance;
+    }
+
+    public static void init(String windowTitle) {
+        Engine.instance = new Engine(windowTitle);
+    }
+
+    public static void startScene(Scene scene) {
+        Engine.getInstance().scene = scene;
+    }
+
+
+    private final Window window;
+    private Scene scene;
+
+    private Engine(String windowTitle) {
+        this.window = new Window(windowTitle, 854, 480);
+        this.scene = new Scene();
     }
 
 }
