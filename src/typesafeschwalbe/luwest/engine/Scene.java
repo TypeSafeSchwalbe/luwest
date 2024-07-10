@@ -2,14 +2,11 @@
 package typesafeschwalbe.luwest.engine;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
 public class Scene {
 
-    private int[] background;
-    private HashMap<long[], Sector> sectors = new HashMap<>();
     private ArrayList<Entity> entities = new ArrayList<>();
     private ArrayList<Consumer<Scene>> systems = new ArrayList<>();
 
@@ -68,6 +65,12 @@ public class Scene {
 
     public Iterable<Entity> allWith(Class<?> component) {
         return () -> new EntitiesWith(component, this);
+    }
+
+    public void runSystems() {
+        for(int sysIdx = 0; sysIdx < this.systems.size(); sysIdx += 1) {
+            this.systems.get(sysIdx).accept(this);
+        }
     }
 
 }

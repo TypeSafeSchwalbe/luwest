@@ -7,14 +7,15 @@ import java.io.PrintWriter;
 import javax.swing.JOptionPane;
 
 import typesafeschwalbe.luwest.engine.Engine;
-import typesafeschwalbe.luwest.engine.Scene;
+import typesafeschwalbe.luwest.scenes.Overworld;
 
 public class Main {
     
     public static void main(String[] args) {
         try {
             Engine.init("Luwest");
-            Engine.startScene(new Scene("overworld.json"));
+            Engine.setScene(Overworld.SCENE.get());
+            Engine.start();
         } catch(Exception e) {
             Main.handleCrash(e);
         }

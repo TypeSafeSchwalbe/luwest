@@ -10,7 +10,6 @@ import javax.swing.JPanel;
 
 public class Window {
 
-    private Object repaintSync = new Object();
     private final JFrame frame;
     private final JPanel panel;
     private BufferedImage buffer = new BufferedImage(
@@ -19,7 +18,7 @@ public class Window {
     private Graphics2D graphics = this.buffer.createGraphics();
 
     private void updateBufferSize() {
-        if(this.panel.getWidth() == 0 || this.panel.getHeight() == 0) {
+        if(this.width() == 0 || this.height() == 0) {
             return;
         }
         boolean bufferInvalid = this.width() != this.buffer.getWidth()
@@ -39,13 +38,6 @@ public class Window {
     public void showBuffer() {
         this.updateBufferSize();
         this.panel.repaint();
-        synchronized(this.repaintSync) {
-            try {
-                this.repaintSync.wait();
-            } catch(InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     public Window(String title, int width, int height) {
@@ -54,11 +46,8 @@ public class Window {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                // 'buffer' and 'repaintSync' are members of 'Window'
+                // 'buffer' is a member of 'Window'
                 g.drawImage(buffer, 0, 0, null);
-                synchronized(repaintSync) {
-                    repaintSync.notifyAll();
-                }
             }
         };
         this.frame.add(this.panel);
