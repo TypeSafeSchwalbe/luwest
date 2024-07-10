@@ -1,7 +1,7 @@
 
 package typesafeschwalbe.luwest.math;
 
-public class Vec2 {
+public class Vec2 implements Cloneable {
     
     public double x;
     public double y;

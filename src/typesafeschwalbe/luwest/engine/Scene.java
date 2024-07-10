@@ -2,13 +2,19 @@
 package typesafeschwalbe.luwest.engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
-import java.util.function.Consumer;
+import java.util.List;
 
 public class Scene {
 
+    @FunctionalInterface
+    public interface System {
+        void run(Scene scene);
+    }
+
     private ArrayList<Entity> entities = new ArrayList<>();
-    private ArrayList<Consumer<Scene>> systems = new ArrayList<>();
+    private ArrayList<System> systems = new ArrayList<>();
 
     public Scene() {}
 
@@ -16,23 +22,23 @@ public class Scene {
         // TODO!
     }
 
-    public Scene with(Entity entity) {
-        this.entities.add(entity);
+    public Scene with(Entity... entity) {
+        this.entities.addAll(List.of(entity));
         return this;
     }
 
-    public Scene with(Consumer<Scene> system) {
-        this.systems.add(system);
+    public Scene with(System... systems) {
+        this.systems.addAll(List.of(systems));
         return this;
     }
 
     private static class EntitiesWith implements Iterator<Entity> {
-        final Class<?> with;
+        final Class<?>[] with;
         final Scene in;
         int idx = 0;
         Entity current = null;
 
-        EntitiesWith(Class<?> component, Scene scene) {
+        EntitiesWith(Class<?>[] component, Scene scene) {
             this.with = component;
             this.in = scene;
             this.proceed();
@@ -46,7 +52,7 @@ public class Scene {
                 }
                 this.current = this.in.entities.get(this.idx);
                 this.idx += 1;
-                if(this.current.has(this.with)) {
+                if(Arrays.stream(this.with).allMatch(this.current::has)) {
                     break;
                 }
             }
@@ -63,13 +69,13 @@ public class Scene {
         }
     }
 
-    public Iterable<Entity> allWith(Class<?> component) {
-        return () -> new EntitiesWith(component, this);
+    public Iterable<Entity> allWith(Class<?>... components) {
+        return () -> new EntitiesWith(components, this);
     }
 
     public void runSystems() {
         for(int sysIdx = 0; sysIdx < this.systems.size(); sysIdx += 1) {
-            this.systems.get(sysIdx).accept(this);
+            this.systems.get(sysIdx).run(this);
         }
     }
 

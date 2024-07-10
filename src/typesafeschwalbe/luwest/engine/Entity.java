@@ -2,7 +2,7 @@ package typesafeschwalbe.luwest.engine;
 
 import java.util.HashMap;
 
-public class Entity {
+public class Entity implements Cloneable {
 
     private final HashMap<Class<?>, Object> components;
 
@@ -13,7 +13,8 @@ public class Entity {
     private Entity(HashMap<Class<?>, Object> components) {
         this.components = components;
     }
-    
+
+    @Override
     public Entity clone() {
         return new Entity(this.components);
     }
