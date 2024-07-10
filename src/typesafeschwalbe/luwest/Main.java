@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             Engine.init("Luwest");
-            Engine.setScene(Overworld.SCENE.get());
+            Engine.setScene(Overworld.createScene());
             Engine.start();
         } catch(Exception e) {
             Main.handleCrash(e);
