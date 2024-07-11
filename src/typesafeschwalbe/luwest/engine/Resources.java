@@ -59,11 +59,11 @@ public final class Resources {
         return Resources.readImage(Resources.external(path));
     }
 
-    public static String loadEmbString(String path) {
+    public static String readEmbString(String path) {
         return Resources.readString(Resources.embedded(path));
     }
 
-    public static BufferedImage loadEmbImage(String path) {
+    public static BufferedImage readEmbImage(String path) {
         return Resources.readImage(Resources.embedded(path));
     }
 

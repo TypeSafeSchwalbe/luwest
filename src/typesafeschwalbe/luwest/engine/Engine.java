@@ -16,8 +16,11 @@ public class Engine {
         Engine.instance = new Engine(windowTitle);
     }
 
-    public static void setScene(Scene scene) {
-        Engine.getInstance().scene = scene;
+    public static void setScene(Scene nextScene) {
+        Engine instance = Engine.getInstance();
+        nextScene.loadResources();
+        instance.scene.unloadResources(nextScene);
+        instance.scene = nextScene;
     }
 
     public static void start() {

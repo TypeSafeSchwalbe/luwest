@@ -19,6 +19,7 @@ public class Scene {
     private LinkedList<Entity> entities = new LinkedList<>();
     private HashSet<Entity> removedEntities = new HashSet<>();
     private ArrayList<SystemState> systems = new ArrayList<>();
+    private HashSet<Resource<?>> resources = new HashSet<>();
 
     public Scene() {}
 
@@ -56,6 +57,11 @@ public class Scene {
             if(!system.tag.get().equals(tag)) { continue; }
             system.enabled = enabled;
         }
+    }
+
+    public Scene with(Resource<?>... resources) {
+        this.resources.addAll(List.of(resources));
+        return this;
     }
 
     private static class EntitiesWith implements Iterator<Entity> {
@@ -99,7 +105,7 @@ public class Scene {
         return () -> new EntitiesWith(components, this);
     }
 
-    public void runSystems() {
+    void runSystems() {
         for(int sysIdx = 0; sysIdx < this.systems.size(); sysIdx += 1) {
             SystemState system = this.systems.get(sysIdx);
             if(!system.enabled) { continue; }
@@ -107,6 +113,16 @@ public class Scene {
         }
         this.entities.removeAll(this.removedEntities);
         this.removedEntities.clear();
+    }
+
+    void loadResources() {
+        Resource.loadAll(this.resources.stream());
+    }
+
+    void unloadResources(Scene nextScene) {
+        this.resources.stream()
+            .filter(r -> !nextScene.resources.contains(r))
+            .forEach(r -> r.unload());
     }
 
 }
