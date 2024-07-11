@@ -1,7 +1,6 @@
 package typesafeschwalbe.luwest.engine;
 
 import java.util.HashMap;
-import java.util.function.Function;
 
 public class Entity implements Cloneable {
 
