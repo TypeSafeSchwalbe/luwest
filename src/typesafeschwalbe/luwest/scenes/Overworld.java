@@ -52,10 +52,6 @@ public class Overworld {
         }
     }
 
-    public static void toggleMovement(Scene scene) {
-        
-    }
-
     public static Scene createScene() {
         return new Scene("overworld.json")
             .with(new Entity()
@@ -64,9 +60,8 @@ public class Overworld {
                 .with(ExampleMovement.class, new ExampleMovement())
             )
             .with(Camera.create())
-            .with(Overworld::toggleMovement)
             .with(Camera::resizeBuffers, Camera::computeOffsets)
-            .with("movement", Overworld::doExampleMovement)
+            .with(Overworld::doExampleMovement)
             .with(Overworld::renderExampleBoxes)
             .with(Camera::showBuffers);
     }

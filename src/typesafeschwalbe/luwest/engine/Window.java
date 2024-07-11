@@ -5,9 +5,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
-import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,7 +21,8 @@ public class Window {
         16, 16, BufferedImage.TYPE_INT_ARGB
     );
     private Graphics2D graphics = this.buffer.createGraphics();
-    private Set<Integer> pressedKeys = new HashSet<>();
+    private HashSet<Integer> pressedKeys = new HashSet<>();
+    private StringBuffer typedText = new StringBuffer();
 
     private void updateBufferSize() {
         if(this.width() == 0 || this.height() == 0) {
@@ -40,19 +42,12 @@ public class Window {
         this.buffer = newBuffer;
     }
 
-    public void showBuffer() {
-        this.updateBufferSize();
-        this.panel.repaint();
-    }
-
     public Window(String title, int width, int height) {
         this.frame = new JFrame(title);
         this.panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
+            @Override protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                // 'buffer' is a member of 'Window'
-                g.drawImage(buffer, 0, 0, null);
+                g.drawImage(buffer, 0, 0, null); // => buffer in Window
             }
         };
         this.frame.add(this.panel);
@@ -61,24 +56,36 @@ public class Window {
         this.frame.setLocationRelativeTo(null);
         this.frame.setVisible(true);
         this.frame.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                // TODO!
+            @Override public void keyTyped(KeyEvent e) {
+                char typed = e.getKeyChar();
+                // => typedText in Window
+                if(typed != '\b') {
+                    typedText.append(typed);
+                    return;
+                }
+                if(typedText.length() > 0) {
+                    typedText.deleteCharAt(typedText.length() - 1);
+                }
             }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                // 'pressedKeys' is a member of 'Window'
-                pressedKeys.add(e.getKeyCode());
+            @Override public void keyPressed(KeyEvent e) {
+                pressedKeys.add(e.getKeyCode()); // => pressedKeys in Window
             }
-    
-            @Override
-            public void keyReleased(KeyEvent e) {
-                // 'pressedKeys' is a member of 'Window'
-                pressedKeys.remove(e.getKeyCode());
+            @Override public void keyReleased(KeyEvent e) {
+                pressedKeys.remove(e.getKeyCode()); // => pressedKeys in Window
+            }
+        });
+        this.frame.addWindowFocusListener(new WindowFocusListener() {
+            @Override public void windowGainedFocus(WindowEvent e) {}
+            @Override public void windowLostFocus(WindowEvent e) {
+                pressedKeys.clear(); // => pressedKeys in Window
             }
         });
         this.updateBufferSize();
+    }
+
+    public void showBuffer() {
+        this.updateBufferSize();
+        this.panel.repaint();
     }
 
     public Graphics2D gfx() { return this.graphics; }
@@ -86,5 +93,15 @@ public class Window {
     public int width() { return this.panel.getWidth(); }
 
     public int height() { return this.panel.getHeight(); }
+
+    public boolean keyPressed(int keyCode) {
+        return this.pressedKeys.contains(keyCode); 
+    }
+
+    public String typedText() { return this.typedText.toString(); }
+
+    public void clearTypedText() {
+        this.typedText.delete(0, this.typedText.length()); 
+    }
 
 }
