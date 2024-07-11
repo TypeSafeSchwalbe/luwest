@@ -43,8 +43,17 @@ public class Overworld {
         for(Entity thing: scene.allWith(
             ExampleMovement.class, Position.class
         )) {
-            thing.get(Position.class).value.x += Engine.deltaTime();
+            Vec2 pos = thing.get(Position.class).value;
+            if(System.currentTimeMillis() % 6000 < 3000) {
+                pos.x += Engine.deltaTime();
+            } else {
+                pos.x -= Engine.deltaTime();
+            }
         }
+    }
+
+    public static void toggleMovement(Scene scene) {
+        
     }
 
     public static Scene createScene() {
@@ -55,8 +64,9 @@ public class Overworld {
                 .with(ExampleMovement.class, new ExampleMovement())
             )
             .with(Camera.create())
+            .with(Overworld::toggleMovement)
             .with(Camera::resizeBuffers, Camera::computeOffsets)
-            .with(Overworld::doExampleMovement)
+            .with("movement", Overworld::doExampleMovement)
             .with(Overworld::renderExampleBoxes)
             .with(Camera::showBuffers);
     }

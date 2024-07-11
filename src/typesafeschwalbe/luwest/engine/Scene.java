@@ -1,10 +1,7 @@
 
 package typesafeschwalbe.luwest.engine;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class Scene {
 
@@ -13,8 +10,15 @@ public class Scene {
         void run(Scene scene);
     }
 
-    private ArrayList<Entity> entities = new ArrayList<>();
-    private ArrayList<System> systems = new ArrayList<>();
+    private static class SystemState {
+        System impl;
+        Optional<String> tag;
+        boolean enabled;
+    }
+
+    private LinkedList<Entity> entities = new LinkedList<>();
+    private HashSet<Entity> removedEntities = new HashSet<>();
+    private ArrayList<SystemState> systems = new ArrayList<>();
 
     public Scene() {}
 
@@ -22,14 +26,36 @@ public class Scene {
         // TODO!
     }
 
-    public Scene with(Entity... entity) {
-        this.entities.addAll(List.of(entity));
+    public Scene with(Entity... entities) {
+        this.entities.addAll(List.of(entities));
         return this;
     }
 
+    public void remove(Entity... entities) {
+        this.removedEntities.addAll(List.of(entities));
+    }
+
     public Scene with(System... systems) {
-        this.systems.addAll(List.of(systems));
+        return this.with(null, systems);
+    }
+
+    public Scene with(String tag, System... systems) {
+        for(System added: systems) {
+            SystemState state = new SystemState();
+            state.enabled = true;
+            state.tag = Optional.ofNullable(tag);
+            state.impl = added;
+            this.systems.add(state);
+        }
         return this;
+    }
+
+    public void setEnabled(String tag, boolean enabled) {
+        for(SystemState system: this.systems) {
+            if(system.tag.isEmpty()) { continue; }
+            if(!system.tag.get().equals(tag)) { continue; }
+            system.enabled = enabled;
+        }
     }
 
     private static class EntitiesWith implements Iterator<Entity> {
@@ -75,8 +101,12 @@ public class Scene {
 
     public void runSystems() {
         for(int sysIdx = 0; sysIdx < this.systems.size(); sysIdx += 1) {
-            this.systems.get(sysIdx).run(this);
+            SystemState system = this.systems.get(sysIdx);
+            if(!system.enabled) { continue; }
+            system.impl.run(this);
         }
+        this.entities.removeAll(this.removedEntities);
+        this.removedEntities.clear();
     }
 
 }

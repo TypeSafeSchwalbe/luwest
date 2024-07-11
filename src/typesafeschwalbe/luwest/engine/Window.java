@@ -3,7 +3,11 @@ package typesafeschwalbe.luwest.engine;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -16,6 +20,7 @@ public class Window {
         16, 16, BufferedImage.TYPE_INT_ARGB
     );
     private Graphics2D graphics = this.buffer.createGraphics();
+    private Set<Integer> pressedKeys = new HashSet<>();
 
     private void updateBufferSize() {
         if(this.width() == 0 || this.height() == 0) {
@@ -55,6 +60,24 @@ public class Window {
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.setLocationRelativeTo(null);
         this.frame.setVisible(true);
+        this.frame.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                // TODO!
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                // 'pressedKeys' is a member of 'Window'
+                pressedKeys.add(e.getKeyCode());
+            }
+    
+            @Override
+            public void keyReleased(KeyEvent e) {
+                // 'pressedKeys' is a member of 'Window'
+                pressedKeys.remove(e.getKeyCode());
+            }
+        });
         this.updateBufferSize();
     }
 

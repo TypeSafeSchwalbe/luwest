@@ -18,6 +18,7 @@ public class Main {
             Engine.start();
         } catch(Exception e) {
             Main.handleCrash(e);
+            System.exit(1);
         }
     }
 
