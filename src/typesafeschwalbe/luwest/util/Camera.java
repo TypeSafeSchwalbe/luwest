@@ -9,7 +9,11 @@ import typesafeschwalbe.luwest.math.Vec2;
 public class Camera {
 
     public static class Configuration {
-        public double distance = 10.0;
+        public double distance;
+
+        public Configuration(double distance) {
+            this.distance = distance;
+        }
     }
 
     public static class Conversion {
@@ -36,10 +40,10 @@ public class Camera {
         public BufferedImage reflection = null;
     }
 
-    public static Entity create() {
+    public static Entity create(double distance) {
         return new Entity()
             .with(Position.class, new Position())
-            .with(Configuration.class, new Configuration())
+            .with(Configuration.class, new Configuration(distance))
             .with(Conversion.class, new Conversion())
             .with(Buffer.class, new Buffer());
     }

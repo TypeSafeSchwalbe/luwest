@@ -43,13 +43,15 @@ public class Overworld {
         for(Entity thing: scene.allWith(
             ExampleMovement.class, Position.class
         )) {
-            Vec2 pos = thing.get(Position.class).value;
-            if(System.currentTimeMillis() % 6000 < 3000) {
-                pos.x += Engine.deltaTime();
-            } else {
-                pos.x -= Engine.deltaTime();
+            Position pos = thing.get(Position.class);
+            for(Entity camera: scene.allWith(Camera.Conversion.class)) {
+                Camera.Conversion conv = camera.get(Camera.Conversion.class);
+                pos.value = conv
+                    .posInWorld(Engine.window().mousePosition())
+                    .add(0.0, 0.5);
             }
         }
+        scene.setEnabled("render_boxes", Engine.window().mousePressed(1));
     }
 
     public static Scene createScene() {
@@ -59,10 +61,10 @@ public class Overworld {
                 .with(Position.class, new Position())
                 .with(ExampleMovement.class, new ExampleMovement())
             )
-            .with(Camera.create())
+            .with(Camera.create(50.0))
             .with(Camera::resizeBuffers, Camera::computeOffsets)
             .with(Overworld::doExampleMovement)
-            .with(Overworld::renderExampleBoxes)
+            .with("render_boxes", Overworld::renderExampleBoxes)
             .with(Camera::showBuffers);
     }
 

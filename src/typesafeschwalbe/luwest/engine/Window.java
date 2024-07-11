@@ -5,6 +5,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferedImage;
@@ -12,6 +17,8 @@ import java.util.HashSet;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import typesafeschwalbe.luwest.math.Vec2;
 
 public class Window {
 
@@ -21,8 +28,13 @@ public class Window {
         16, 16, BufferedImage.TYPE_INT_ARGB
     );
     private Graphics2D graphics = this.buffer.createGraphics();
+
     private HashSet<Integer> pressedKeys = new HashSet<>();
     private StringBuffer typedText = new StringBuffer();
+
+    private HashSet<Integer> pressedButtons = new HashSet<>();
+    private Vec2 mousePosition = new Vec2();
+    private int scrollOffset = 0;
 
     private void updateBufferSize() {
         if(this.width() == 0 || this.height() == 0) {
@@ -80,6 +92,37 @@ public class Window {
                 pressedKeys.clear(); // => pressedKeys in Window
             }
         });
+        this.frame.addMouseMotionListener(new MouseMotionListener() {
+            @Override public void mouseDragged(MouseEvent e) { 
+                // => mousePosition in Window
+                mousePosition.x = e.getX();
+                mousePosition.y = e.getY();
+            }
+            @Override public void mouseMoved(MouseEvent e) {
+                // => mousePosition in Window
+                mousePosition.x = e.getX();
+                mousePosition.y = e.getY();
+            }
+        });
+        this.frame.addMouseListener(new MouseListener() {
+            @Override public void mouseClicked(MouseEvent e) {}
+            @Override public void mouseEntered(MouseEvent e) {}
+            @Override public void mouseExited(MouseEvent e) {}
+            @Override public void mousePressed(MouseEvent e) {
+                // => pressedButtons in Window
+                pressedButtons.add(e.getButton());
+            }
+            @Override public void mouseReleased(MouseEvent e) {
+                // => pressedButtons in Window
+                pressedButtons.remove(e.getButton());
+            }
+        });
+        this.frame.addMouseWheelListener(new MouseWheelListener() {
+            @Override public void mouseWheelMoved(MouseWheelEvent e) {
+                // => scrollOffset in Window
+                scrollOffset += e.getWheelRotation();
+            }
+        });
         this.updateBufferSize();
     }
 
@@ -100,8 +143,20 @@ public class Window {
 
     public String typedText() { return this.typedText.toString(); }
 
-    public void clearTypedText() {
+    public void resetTypedText() {
         this.typedText.delete(0, this.typedText.length()); 
+    }
+
+    public boolean mousePressed(int button) {
+        return this.pressedButtons.contains(button);
+    }
+
+    public Vec2 mousePosition() { return this.mousePosition.clone(); }
+
+    public int scrollOffset() { return this.scrollOffset; }
+
+    public void resetScrollOffset() {
+        this.scrollOffset = 0;
     }
 
 }
