@@ -36,14 +36,11 @@ public class SpriteRenderer {
                 Vec2 anchorSPos = conv.posOnScreen(worldPos.value.clone());
                 double sPosX = anchorSPos.x - anchorOffset.x;
                 double sPosY = anchorSPos.y + Math.max(anchorOffset.y, sSize.y);
-                buffer.reflect.add(anchorSPos.y, g -> {
-                    g.drawImage(
-                        r.sprite.get(),
-                        (int) sPosX, (int) sPosY, 
-                        (int) sSize.x, (int) (-sSize.y), 
-                        null
-                    );
-                });
+                buffer.reflect.add(anchorSPos.y, g -> g.drawImage(
+                    r.sprite.get(),
+                    (int) sPosX, (int) sPosY, (int) sSize.x, (int) (-sSize.y), 
+                    null
+                ));
             }
         }
     }
@@ -63,14 +60,11 @@ public class SpriteRenderer {
                     .mul(sSize);
                 Vec2 anchorSPos = conv.posOnScreen(worldPos.value.clone());
                 Vec2 sPos = anchorSPos.clone().sub(anchorOffset);
-                buffer.world.add(anchorSPos.y, g -> {
-                    g.drawImage(
-                        r.sprite.get(),
-                        (int) sPos.x, (int) sPos.y, 
-                        (int) sSize.x, (int) sSize.y, 
-                        null
-                    );
-                });
+                buffer.world.add(anchorSPos.y, g -> g.drawImage(
+                    r.sprite.get(),
+                    (int) sPos.x, (int) sPos.y, (int) sSize.x, (int) sSize.y, 
+                    null
+                ));
             }
         }
     }
