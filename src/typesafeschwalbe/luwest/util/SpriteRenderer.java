@@ -1,7 +1,6 @@
 
 package typesafeschwalbe.luwest.util;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import typesafeschwalbe.luwest.engine.*;
