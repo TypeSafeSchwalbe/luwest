@@ -27,10 +27,6 @@ public class Scene {
 
     public Scene() {}
 
-    public Scene(String terrain) {
-        // TODO!
-    }
-
     public Scene with(Entity... entities) {
         this.entities.addAll(List.of(entities));
         return this;

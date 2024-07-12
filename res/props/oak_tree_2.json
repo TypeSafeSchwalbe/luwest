@@ -1,5 +1,5 @@
 {
-    "sprite": "oak_tree_2.png",
+    "sprite": "res/textures/oak_tree_2.png",
     "size": [3.0, 4.0],
     "anchor": [29, 63],
     "colliders": [

@@ -6,8 +6,8 @@ import java.io.PrintWriter;
 
 import javax.swing.JOptionPane;
 
-import typesafeschwalbe.luwest.engine.Engine;
 import typesafeschwalbe.luwest.scenes.Overworld;
+import typesafeschwalbe.luwest.engine.Engine;
 
 public class Main {
     

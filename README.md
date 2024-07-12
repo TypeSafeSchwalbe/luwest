@@ -5,7 +5,7 @@ A 2D top-down adventure game written in Java.
 ### Building and Running
 This project may be built from source using Maven by running:
 ```
-mvn package
+mvn clean compile assembly:single
 ```
 This produces a runnable `luwest.jar` in the `target`-directory, which may be executed by running:
 ```
