@@ -3,28 +3,8 @@ package typesafeschwalbe.luwest.engine;
 
 import java.awt.image.BufferedImage;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
 
 public abstract class Resource<T> {
-    
-    static void loadAll(Stream<Resource<?>> resources) {
-        ExecutorService executor = Executors.newFixedThreadPool(8);
-        resources
-            .map(r -> executor.submit(r::load))
-            .forEach(f -> {
-                try {
-                    f.get();
-                } catch(InterruptedException e) {
-                    throw new RuntimeException(e);
-                } catch(ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-    }
-
 
     private Resource() {}
 

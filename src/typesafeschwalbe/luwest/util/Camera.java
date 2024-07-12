@@ -1,6 +1,8 @@
 
 package typesafeschwalbe.luwest.util;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import typesafeschwalbe.luwest.engine.*;
@@ -36,8 +38,27 @@ public class Camera {
     }
 
     public static class Buffer {
-        public BufferedImage world = null;
-        public BufferedImage reflection = null;
+        public BufferedImage reflectBuff = null;
+        public RenderQueue reflect = new RenderQueue();
+        public BufferedImage worldBuff = null;
+        public RenderQueue world = new RenderQueue();
+
+        private void resize() {
+            boolean buffersInvalid = this.worldBuff == null
+                || this.worldBuff.getWidth() != Engine.window().width()
+                || this.worldBuff.getHeight() != Engine.window().height();
+            if(!buffersInvalid) { return; }
+            this.worldBuff = new BufferedImage(
+                Engine.window().width(),
+                Engine.window().height(), 
+                BufferedImage.TYPE_INT_ARGB
+            );
+            this.reflectBuff = new BufferedImage(
+                Engine.window().width(),
+                Engine.window().height(), 
+                BufferedImage.TYPE_INT_ARGB
+            );
+        }
     }
 
     public static Entity create(double distance) {
@@ -66,31 +87,43 @@ public class Camera {
         }
     }
 
-    public static void resizeBuffers(Scene scene) {
+    public static void renderReflections(Scene scene) {
         for(Entity camera: scene.allWith(Buffer.class)) {
             Buffer buffer = camera.get(Buffer.class);
-            boolean buffersInvalid = buffer.world == null
-                || buffer.world.getWidth() != Engine.window().width()
-                || buffer.world.getHeight() != Engine.window().height();
-            if(buffersInvalid) {
-                buffer.world = new BufferedImage(
-                    Engine.window().width(),
-                    Engine.window().height(), 
-                    BufferedImage.TYPE_INT_ARGB
-                );
-                buffer.reflection = new BufferedImage(
-                    Engine.window().width(),
-                    Engine.window().height(), 
-                    BufferedImage.TYPE_INT_ARGB
-                );
-            }
+            buffer.resize();
+            Graphics2D g = buffer.reflectBuff.createGraphics();
+            g.setBackground(new Color(1f, 1f, 1f, 0f));
+            g.clearRect(
+                0, 0,
+                buffer.reflectBuff.getWidth(), buffer.reflectBuff.getHeight()
+            );
+            buffer.reflect.renderAll(g);
+            g.dispose();
+        }
+    }
+
+    public static void renderAll(Scene scene) {
+        for(Entity camera: scene.allWith(Buffer.class)) {
+            Buffer buffer = camera.get(Buffer.class);
+            buffer.resize();
+            Graphics2D g = buffer.worldBuff.createGraphics();
+            g.setBackground(new Color(1f, 1f, 1f, 0f));
+            g.clearRect(
+                0, 0, buffer.worldBuff.getWidth(), buffer.worldBuff.getHeight()
+            );
+            buffer.world.renderAll(g);
+            g.dispose();
         }
     }
 
     public static void showBuffers(Scene scene) {
         for(Entity camera: scene.allWith(Buffer.class)) {
             Buffer buffer = camera.get(Buffer.class);
-            Engine.window().gfx().drawImage(buffer.world, 0, 0, null);
+            Engine.window().gfx().setColor(Color.BLACK);
+            Engine.window().gfx().fillRect(
+                0, 0, Engine.window().width(), Engine.window().height()
+            );
+            Engine.window().gfx().drawImage(buffer.worldBuff, 0, 0, null);
         }
     }
 
