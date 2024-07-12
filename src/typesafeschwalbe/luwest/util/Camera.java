@@ -119,7 +119,7 @@ public class Camera {
     public static void showBuffers(Scene scene) {
         for(Entity camera: scene.allWith(Buffer.class)) {
             Buffer buffer = camera.get(Buffer.class);
-            Engine.window().gfx().setColor(new Color(126, 196, 193));
+            Engine.window().gfx().setColor(Color.BLACK);
             Engine.window().gfx().fillRect(
                 0, 0, Engine.window().width(), Engine.window().height()
             );
