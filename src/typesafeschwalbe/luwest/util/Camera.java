@@ -76,10 +76,10 @@ public class Camera {
             Position pos = camera.get(Position.class);
             Configuration conf = camera.get(Configuration.class);
             Conversion conv = camera.get(Conversion.class);
-            int vmin = Math.min(
+            int vmax = Math.max(
                 Engine.window().width(), Engine.window().height()
             );
-            conv.unitSize = vmin / conf.distance;
+            conv.unitSize = vmax / conf.distance;
             conv.offset.x = -(pos.value.x * conv.unitSize) 
                 + (Engine.window().width() / 2.0);
             conv.offset.y = -(pos.value.y * conv.unitSize)

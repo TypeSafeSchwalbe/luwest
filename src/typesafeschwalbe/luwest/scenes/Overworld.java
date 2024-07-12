@@ -34,7 +34,7 @@ public class Overworld {
     public static Scene createScene() {
         return new Scene()
             .with(
-                Camera.create(10.0),
+                Camera.create(20.0),
                 Overworld.createTree(new Vec2(-2.0, -1.0)),
                 Overworld.createTree(new Vec2( 0.0,  0.0)),
                 Overworld.createTree(new Vec2( 2.0,  1.0))
