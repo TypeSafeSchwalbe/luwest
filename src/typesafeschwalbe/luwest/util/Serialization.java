@@ -3,25 +3,24 @@ package typesafeschwalbe.luwest.util;
 
 import java.util.HashMap;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
 import typesafeschwalbe.luwest.engine.Entity;
+import typesafeschwalbe.luwest.engine.Resource;
+import typesafeschwalbe.luwest.engine.Resource.Origin;
+import typesafeschwalbe.luwest.math.Vec2;
 
 public class Serialization {
 
     private Serialization() {}
 
 
-    @FunctionalInterface
-    public interface StringReader {
-        String read(String path);
-    }
-
-
     public interface Serializer {
-        Entity deserialize(JsonObject instance, JsonObject type);
+        Entity deserialize(
+            JsonObject instance, JsonObject type, Origin origin
+        );
         JsonObject serialize(Entity entity);
     }
 
@@ -44,24 +43,12 @@ public class Serialization {
         Serialization.SERIALIZERS.put(name, serializer);
     }
 
-    private static final HashMap<String, JsonObject> CACHED_TYPES
-        = new HashMap<>();
-
-    private static JsonObject readType(String path, StringReader reader) {
-        JsonObject cached = Serialization.CACHED_TYPES.get(path);
-        if(cached != null) { return cached; }
-        String file = reader.read(path);
-        JsonObject type = JsonParser.parseString(file).getAsJsonObject();
-        Serialization.CACHED_TYPES.put(path, type);
-        return type;
-    }
-
-    public static Entity deserialize(JsonObject instance, StringReader reader) {
+    public static Entity deserialize(JsonObject instance, Origin origin) {
         String typePath = instance.get("type").getAsString();
-        JsonObject type = Serialization.readType(typePath, reader);
+        JsonObject type = Resource.json(typePath, origin).get();
         String serializerName = type.get("serializer").getAsString();
         Serializer serializer = Serialization.SERIALIZERS.get(serializerName);
-        return serializer.deserialize(instance, type)
+        return serializer.deserialize(instance, type, origin)
             .with(Serializable.class, new Serializable(typePath, serializer));
     }
 
@@ -70,6 +57,46 @@ public class Serialization {
         JsonObject instance = serialization.serializer.serialize(entity);
         instance.add("type", new JsonPrimitive(serialization.type));
         return instance;
+    }
+
+
+    public static class PropSerializer implements Serializer {
+        static final HashMap<JsonObject, SpriteRenderer> RENDERER_CACHE
+            = new HashMap<>();
+
+        @Override
+        public Entity deserialize(
+            JsonObject instance, JsonObject type, Origin origin
+        ) {
+            JsonArray at = instance.get("at").getAsJsonArray();
+            String spritePath = type.get("sprite").getAsString();
+            JsonArray anchor = type.get("anchor").getAsJsonArray();
+            JsonArray size = type.get("size").getAsJsonArray();
+            SpriteRenderer renderer = PropSerializer.RENDERER_CACHE.get(type);
+            if(renderer == null) {
+                renderer = new SpriteRenderer(
+                    Resource.image(spritePath, origin), 
+                    new Vec2(anchor), 
+                    new Vec2(size)
+                );
+                PropSerializer.RENDERER_CACHE.put(type, renderer);
+            }
+            return new Entity()
+                .with(Position.class, new Position(new Vec2(at)))
+                .with(SpriteRenderer.class, renderer);
+        }
+
+        @Override
+        public JsonObject serialize(Entity entity) {
+            Position position = entity.get(Position.class);
+            JsonObject instance = new JsonObject();
+            instance.add("at", position.value.asJsonArray());
+            return instance;
+        }
+    }
+
+    static {
+        Serialization.define("prop", new PropSerializer());    
     }
 
 }

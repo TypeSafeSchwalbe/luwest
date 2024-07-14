@@ -1,7 +1,8 @@
 {
+    "serializer": "prop",
     "sprite": "res/textures/oak_tree_2.png",
-    "size": [3.0, 4.0],
     "anchor": [29, 63],
+    "size": [3.0, 4.0],
     "colliders": [
         { "at": [-4, -5], "size": [8, 6] }
     ]

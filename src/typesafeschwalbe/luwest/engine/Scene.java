@@ -19,7 +19,6 @@ public class Scene {
     private LinkedList<Entity> entities = new LinkedList<>();
     private HashSet<Entity> removedEntities = new HashSet<>();
     private ArrayList<SystemState> systems = new ArrayList<>();
-    private HashSet<Resource<?>> resources = new HashSet<>();
 
     public Scene() {}
 
@@ -53,11 +52,6 @@ public class Scene {
             if(!system.tag.get().equals(tag)) { continue; }
             system.enabled = enabled;
         }
-    }
-
-    public Scene with(Resource<?>... resources) {
-        this.resources.addAll(List.of(resources));
-        return this;
     }
 
     private static class EntitiesWith implements Iterator<Entity> {

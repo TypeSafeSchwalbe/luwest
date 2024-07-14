@@ -1,6 +1,9 @@
 
 package typesafeschwalbe.luwest.math;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonPrimitive;
+
 public class Vec2 implements Cloneable {
     
     public double x;
@@ -16,10 +19,22 @@ public class Vec2 implements Cloneable {
         this.y = y;
     }
 
+    public Vec2(JsonArray jsonArr) {
+        this.x = jsonArr.get(0).getAsDouble();
+        this.y = jsonArr.get(1).getAsDouble();
+    }
+
 
     @Override
     public Vec2 clone() {
         return new Vec2(this.x, this.y);
+    }
+
+    public JsonArray asJsonArray() {
+        JsonArray arr = new JsonArray();
+        arr.add(new JsonPrimitive(this.x));
+        arr.add(new JsonPrimitive(this.y));
+        return arr;
     }
 
 
