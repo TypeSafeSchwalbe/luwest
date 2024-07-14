@@ -14,7 +14,7 @@ import typesafeschwalbe.luwest.util.SpriteRenderer;
 public class Overworld {
 
     public static Resource<BufferedImage> OAK_TREE_1 
-        = Resource.embeddedImage("res/textures/oak_tree_1.png");
+        = Resource.image("res/textures/oak_tree_1.png", Resource.EMBEDDED);
 
     public static void renderInfiniteWater(Scene scene) {
         for(Entity camera: scene.allWith(Camera.Buffer.class)) {

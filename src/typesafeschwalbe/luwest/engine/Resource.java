@@ -2,70 +2,129 @@
 package typesafeschwalbe.luwest.engine;
 
 import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-public abstract class Resource<T> {
+import javax.imageio.ImageIO;
 
-    private Resource() {}
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-    private T value = null;
+public class Resource<T> {
+
+    private Optional<T> value = Optional.empty();
+    private final Future<T> loaded;
+
+    private Resource(Future<T> loaded) {
+        this.loaded = loaded;
+    }
 
     public T get() {
-        if(this.value == null) {
-            throw new RuntimeException("Resource has not yet been loaded!");
+        if(!this.value.isPresent()) {
+            try {
+                this.value = Optional.of(this.loaded.get());
+            } catch(InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch(ExecutionException e) {
+                throw new RuntimeException(e);
+            }
         }
-        return this.value;
-    }
-
-    public boolean loaded() {
-        return this.value != null;
-    }
-
-    abstract T read();
-
-    public void load() {
-        this.value = this.read();
-    }
-
-    public void unload() {
-        this.value = null;
+        return this.value.get();
     }
 
 
-    private static HashMap<String, WeakReference<BufferedImage>> IMAGE_CACHE 
+    @FunctionalInterface
+    public interface Origin {
+        InputStream read(String path);
+    }
+
+    public static final Origin EMBEDDED = path -> {
+        InputStream is = ClassLoader.getSystemClassLoader()
+            .getResourceAsStream(path);
+        if(is == null) {
+            throw new RuntimeException(
+                "Unable to locate embedded file '" + path + "'"
+            );
+        }
+        return is;
+    };
+
+    public static final Origin EXTERNAL = path -> {
+        try {
+            return new FileInputStream(path);
+        } catch(FileNotFoundException e) {
+            throw new RuntimeException(
+                "Unable to load file '" + path + "': " + e.getMessage(), e
+            );
+        }
+    };
+
+
+    private static final HashMap<String, WeakReference<Resource<?>>> CACHE
         = new HashMap<>();
+    private static final ExecutorService READER_POOL
+        = Executors.newFixedThreadPool(8);
 
-    public static Resource<BufferedImage> embeddedImage(String path) {
-        return new Resource<BufferedImage>() {
-            @Override BufferedImage read() {
-                if(Resource.IMAGE_CACHE.containsKey(path)) {
-                    BufferedImage cached = Resource.IMAGE_CACHE.get(path).get();
-                    if(cached != null) { return cached; }
-                }
-                BufferedImage read = Resources.readEmbImage(path);
-                Resource.IMAGE_CACHE.put(path, new WeakReference<>(read));
-                return read;
+    @SuppressWarnings("unchecked")
+    private static <T> Resource<T> getCachedOrRead(
+        String path, Callable<T> reader
+    ) {
+        WeakReference<Resource<?>> cachedRef = Resource.CACHE.get(path);
+        if(cachedRef != null) {
+            Resource<?> cached = cachedRef.get();
+            if(cached != null) {
+                return (Resource<T>) cached;
             }
-        };
+        }
+        Future<T> read = READER_POOL.submit(reader);
+        Resource<T> resource = new Resource<>(read);
+        Resource.CACHE.put(path, new WeakReference<>(resource));
+        return resource;
+    }
+
+    public static Resource<String> string(String path, Origin origin) {
+        return Resource.getCachedOrRead(path, () -> {
+            try(InputStream is = origin.read(path)) {
+                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            } catch(IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public static Resource<BufferedImage> image(String path, Origin origin) {
+        return Resource.getCachedOrRead(path, () -> {
+            try(InputStream is = origin.read(path)) {
+                return ImageIO.read(is);
+            } catch(IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public static Resource<JsonObject> json(String path, Origin origin) {
+        return Resource.getCachedOrRead(path, () -> {
+            try(
+                InputStream is = origin.read(path);
+                InputStreamReader ir = new InputStreamReader(is)
+            ) {
+                return JsonParser.parseReader(ir).getAsJsonObject();
+            }
+        });
     }
 
 
-    private static HashMap<String, WeakReference<String>> STRING_CACHE 
-        = new HashMap<>();
-
-    public static Resource<String> embeddedString(String path) {
-        return new Resource<String>() {
-            @Override String read() {
-                if(Resource.STRING_CACHE.containsKey(path)) {
-                    String cached = Resource.STRING_CACHE.get(path).get();
-                    if(cached != null) { return cached; }
-                }
-                String read = Resources.readEmbString(path);
-                Resource.STRING_CACHE.put(path, new WeakReference<>(read));
-                return read;
-            }
-        };
-    }
 
 }

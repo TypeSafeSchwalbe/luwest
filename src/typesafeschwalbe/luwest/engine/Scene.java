@@ -2,10 +2,6 @@
 package typesafeschwalbe.luwest.engine;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class Scene {
 
@@ -113,29 +109,6 @@ public class Scene {
         }
         this.entities.removeAll(this.removedEntities);
         this.removedEntities.clear();
-    }
-
-    void loadResources() {
-        ExecutorService executor = Executors.newFixedThreadPool(8);
-        LinkedList<Future<?>> futures = new LinkedList<>();
-        for(Resource<?> r: this.resources) {
-            futures.add(executor.submit(r::load));
-        }
-        for(Future<?> future: futures) {
-            try {
-                future.get();
-            } catch(InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch(ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    void unloadResources(Scene nextScene) {
-        this.resources.stream()
-            .filter(r -> !nextScene.resources.contains(r))
-            .forEach(r -> r.unload());
     }
 
 }
