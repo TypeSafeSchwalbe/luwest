@@ -7,14 +7,28 @@ import java.io.PrintWriter;
 import javax.swing.JOptionPane;
 
 import typesafeschwalbe.luwest.scenes.Overworld;
+import typesafeschwalbe.luwest.util.Editor;
 import typesafeschwalbe.luwest.engine.Engine;
+import typesafeschwalbe.luwest.engine.Scene;
 
 public class Main {
     
     public static void main(String[] args) {
         try {
-            Engine.init("Luwest");
-            Engine.setScene(Overworld.createScene());
+            String title = null;
+            Scene scene = null;
+            for(int argI = 0; argI < args.length - 1; argI += 1) {
+                if(args[argI].equals("--edit")) {
+                    title = "Luwest Editor";
+                    scene = Editor.createScene(args[argI + 1]);
+                }
+            }
+            if(title == null) {
+                title = "Luwest";
+                scene = Overworld.createScene();
+            }
+            Engine.init(title);
+            Engine.setScene(scene);
             Engine.start();
         } catch(Exception e) {
             Main.handleCrash(e);

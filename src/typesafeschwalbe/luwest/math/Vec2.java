@@ -74,4 +74,10 @@ public class Vec2 implements Cloneable {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
+    public Vec2 normalize() {
+        double length = this.len();
+        if(length == 0.0) { return this; }
+        return this.div(length);
+    }
+
 }
