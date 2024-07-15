@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 import typesafeschwalbe.luwest.engine.Entity;
 import typesafeschwalbe.luwest.engine.Scene;
@@ -16,7 +15,7 @@ public final class Sectors {
     private Sectors() {}
 
 
-    private static class Sector {
+    public static class Sector {
         public long x;
         public long y;
 
@@ -40,23 +39,22 @@ public final class Sectors {
     }
 
 
+    @FunctionalInterface
+    public interface DeletionHandler {
+        void handle(Scene scene, List<Entity> deleted);
+    }
+
+
     public static class Owned {}
 
     public static class Observer {
-        public long sectorSize = 64;
         public long range = 4;
-        public BiConsumer<Scene, List<Entity>> deletionHandler = (s, d) -> {};
+        public DeletionHandler deletionHandler = (s, d) -> {};
         public final StaticScene staticScene;
-        private long sectorX = 0;
-        private long sectorY = 0;
+        private Sector sector = new Sector(0, 0);
 
         public Observer(StaticScene staticScene) {
             this.staticScene = staticScene;
-        }
-
-        public Observer withSectorSize(long sectorSize) {
-            this.sectorSize = sectorSize;
-            return this;
         }
 
         public Observer withRange(long range) {
@@ -64,27 +62,29 @@ public final class Sectors {
             return this;
         }
 
-        public Observer withDeletionHandler(
-            BiConsumer<Scene, List<Entity>> handler
-        ) {
+        public Observer withDeletionHandler(DeletionHandler handler) {
             this.deletionHandler = handler;
             return this;
         }
 
-        public long getSectorX(Vec2 pos) {
-            return (long) pos.x / this.sectorSize;
+        public long asSectorX(Vec2 pos) {
+            return (long) pos.x / this.staticScene.sectorSize;
         }
 
-        public long getSectorY(Vec2 pos) {
-            return (long) pos.y / this.sectorSize;
+        public long asSectorY(Vec2 pos) {
+            return (long) pos.y / this.staticScene.sectorSize;
+        }
+
+        public Sector asSector(Vec2 pos) {
+            return new Sector(this.asSectorX(pos), this.asSectorY(pos));
         }
 
         private boolean isObserved(Entity entity) {
             Position position = entity.get(Position.class);
-            long sectorX = this.getSectorX(position.value);
-            long sectorY = this.getSectorY(position.value);
-            long distance = Math.abs(sectorX - this.sectorX)
-                + Math.abs(sectorY - this.sectorY);
+            long sectorX = this.asSectorX(position.value);
+            long sectorY = this.asSectorY(position.value);
+            long distance = Math.abs(sectorX - this.sector.x)
+                + Math.abs(sectorY - this.sector.y);
             return distance <= this.range;
         }
 
@@ -95,7 +95,9 @@ public final class Sectors {
                 deleted.add(entity);
                 scene.remove(entity);
             }
-            this.deletionHandler.accept(scene, deleted);
+            if(deleted.size() > 0) {
+                this.deletionHandler.handle(scene, deleted);
+            }
         }
 
         private void spawnObserved(Scene scene) {
@@ -103,24 +105,25 @@ public final class Sectors {
             for(Entity entity: scene.allWith(Owned.class, Position.class)) {
                 Position position = entity.get(Position.class);
                 seen.add(new Sector(
-                    this.getSectorX(position.value), 
-                    this.getSectorY(position.value)
+                    this.asSectorX(position.value), 
+                    this.asSectorY(position.value)
                 ));
             }
-            Sector sector = new Sector(0, 0);
+            Sector checked = new Sector(0, 0);
+            long r = this.range / 2;
             for(
-                sector.x = this.sectorX - this.range; 
-                sector.x <= this.sectorX + range; 
-                sector.x += 1
+                checked.x = this.sector.x - r; 
+                checked.x <= this.sector.x + r; 
+                checked.x += 1
             ) {
                 for(
-                    sector.y = this.sectorY - this.range;
-                    sector.y <= this.sectorY + range;
-                    sector.y += 1
+                    checked.y = this.sector.y - r;
+                    checked.y <= this.sector.y + r;
+                    checked.y += 1
                 ) {
-                    if(seen.contains(sector)) { continue; }
+                    if(seen.contains(checked)) { continue; }
                     this.staticScene
-                        .deserializeSector(sector.x, sector.y, scene);
+                        .deserializeSector(checked.x, checked.y, scene);
                 }
             }
         }
@@ -131,8 +134,8 @@ public final class Sectors {
         for(Entity entity: scene.allWith(Observer.class, Position.class)) {
             Observer observer = entity.get(Observer.class);
             Position position = entity.get(Position.class);
-            observer.sectorX = observer.getSectorX(position.value);
-            observer.sectorY = observer.getSectorY(position.value);
+            observer.sector.x = observer.asSectorX(position.value);
+            observer.sector.y = observer.asSectorY(position.value);
             observer.deleteUnobserved(scene);
             observer.spawnObserved(scene);
         }

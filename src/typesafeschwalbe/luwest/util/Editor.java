@@ -38,10 +38,13 @@ public final class Editor {
 
     public static Scene createScene(String staticScenePath) {
         StaticScene scene = new StaticScene(staticScenePath, Resource.EXTERNAL);
+        Sectors.Observer observer = new Sectors.Observer(scene)
+            .withDeletionHandler((s, deleted) -> {
+            });
         return new Scene()
             .with(
                 Camera.create(20.0)
-                    .with(Sectors.Observer.class, new Sectors.Observer(scene))
+                    .with(Sectors.Observer.class, observer)
                     .with(Velocity.class, new Velocity())
             )
             .with(

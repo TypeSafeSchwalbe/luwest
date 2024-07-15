@@ -1,11 +1,20 @@
 {
     "background": "#FF5555",
+    "sector_size": 2,
     "sectors": {
         "0|0": {
             "entities": [
-                { "type": "res/props/oak_tree_1.json", "at": [0.0, 0.0] },
-                { "type": "res/props/oak_tree_1.json", "at": [2.5, 2.5] },
-                { "type": "res/props/oak_tree_1.json", "at": [5.0, 5.0] }
+                { "type": "res/props/oak_tree_1.json", "at": [0.0, 0.0] }
+            ]
+        },
+        "1|1": {
+            "entities": [
+                { "type": "res/props/oak_tree_1.json", "at": [2.0, 2.0] }
+            ]
+        },
+        "2|2": {
+            "entities": [
+                { "type": "res/props/oak_tree_1.json", "at": [4.0, 4.0] }
             ]
         }
     }

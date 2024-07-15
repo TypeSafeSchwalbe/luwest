@@ -10,12 +10,14 @@ import typesafeschwalbe.luwest.engine.*;
 
 public class StaticScene {
 
-    private JsonObject json;
-    private Resource.Origin origin;
+    public final JsonObject json;
+    public final Resource.Origin origin;
+    public final long sectorSize;
 
     public StaticScene(String file, Resource.Origin origin) {
         this.json = Resource.json(file, origin).get();
         this.origin = origin;
+        this.sectorSize = this.json.get("sector_size").getAsLong();
     }
 
     public void renderBackground(Scene scene) {
