@@ -12,7 +12,7 @@ import typesafeschwalbe.luwest.engine.Resource;
 import typesafeschwalbe.luwest.engine.Resource.Origin;
 import typesafeschwalbe.luwest.math.Vec2;
 
-public class Serialization {
+public final class Serialization {
 
     private Serialization() {}
 

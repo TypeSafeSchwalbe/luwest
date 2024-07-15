@@ -8,7 +8,10 @@ import java.awt.image.BufferedImage;
 import typesafeschwalbe.luwest.engine.*;
 import typesafeschwalbe.luwest.math.Vec2;
 
-public class Camera {
+public final class Camera {
+
+    private Camera() {}
+    
 
     public static class Configuration {
         public double distance;

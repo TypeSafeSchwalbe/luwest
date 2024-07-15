@@ -1,23 +1,10 @@
 {
-    "background": [0, 0, 255],
-    "tiles": [
-        "res/tiles/water_calm.json"
-    ],
-    "props": [
-        "res/props/oak_tree_1.json",
-        "res/props/oak_tree_2.json"
-    ],
+    "background": "#FF5555",
     "sectors": {
         "0|0": {
-            "tiles": [
-                [ 0, 0, 0, 0 ],
-                [ 0, 0, 0, 0 ],
-                [ 0, 0, 0, 0 ],
-                [ 0, 0, 0, 0 ]
-            ],
-            "props": [
-                { "type": 0, "at": [1.0, 1.0] },
-                { "type": 1, "at": [3.0, 3.0] }
+            "entities": [
+                { "type": "res/props/oak_tree_1.json", "at": [0.0, 0.0] },
+                { "type": "res/props/oak_tree_2.json", "at": [3.0, 3.0] }
             ]
         }
     }

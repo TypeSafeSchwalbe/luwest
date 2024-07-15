@@ -4,12 +4,11 @@ package typesafeschwalbe.luwest.scenes;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 
-import com.google.gson.JsonParser;
-
 import typesafeschwalbe.luwest.engine.*;
 import typesafeschwalbe.luwest.util.Camera;
+import typesafeschwalbe.luwest.util.Sectors;
 import typesafeschwalbe.luwest.util.SpriteRenderer;
-import typesafeschwalbe.luwest.util.Serialization;
+import typesafeschwalbe.luwest.util.StaticScene;
 
 public class Overworld {
 
@@ -32,28 +31,26 @@ public class Overworld {
         }
     }
 
+
     public static Scene createScene() {
+        StaticScene scene = new StaticScene(
+            "res/scenes/overworld.json", Resource.EMBEDDED
+        );
         return new Scene()
             .with(
-                Camera.create(20.0),
-                Serialization.deserialize(
-                    JsonParser.parseString("""
-                        {
-                            "type": "res/props/oak_tree_1.json",
-                            "at": [0.0, 0.0]
-                        }     
-                    """).getAsJsonObject(), 
-                    Resource.EMBEDDED
-                )
+                Camera.create(20.0)
+                    .with(Sectors.Observer.class, new Sectors.Observer(scene))
             )
             .with(
+                Sectors::manageAll,
                 Camera::computeOffsets,
 
                 SpriteRenderer::renderReflections,
                 Camera::renderReflections,
 
+                scene::renderBackground,
                 SpriteRenderer::renderAll,
-                Overworld::renderInfiniteWater,
+                //Overworld::renderInfiniteWater,
                 Camera::renderAll,
                 
                 Camera::showBuffers
