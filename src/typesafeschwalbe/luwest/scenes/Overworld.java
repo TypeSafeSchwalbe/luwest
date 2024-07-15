@@ -37,10 +37,9 @@ public class Overworld {
             "res/scenes/overworld.json", Resource.EMBEDDED
         );
         return new Scene()
-            .with(
-                Camera.create(20.0)
-                    .with(Sectors.Observer.class, new Sectors.Observer(scene))
-            )
+            .with(Camera.create(20.0).with(
+                Sectors.Observer.class, new Sectors.Observer(scene, 4)
+            ))
             .with(
                 Sectors::manageAll,
                 Camera::computeOffsets,

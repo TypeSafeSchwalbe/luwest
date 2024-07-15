@@ -3,6 +3,9 @@ package typesafeschwalbe.luwest.util;
 
 import java.awt.Color;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -33,16 +36,43 @@ public class StaticScene {
         }
     }
 
-    public void deserializeSector(long sectorX, long sectorY, Scene scene) {
+    public JsonObject sectorJson(long sectorX, long sectorY) {
         String sectorId = Long.valueOf(sectorX) + "|" + Long.valueOf(sectorY);
         JsonObject sectors = this.json.get("sectors").getAsJsonObject();
-        if(!sectors.has(sectorId)) { return; }
-        JsonObject sector = sectors.get(sectorId).getAsJsonObject();
+        if(!sectors.has(sectorId)) { return null; }
+        return sectors.get(sectorId).getAsJsonObject();
+    }
+
+    public void deserializeSector(long sectorX, long sectorY, Scene scene) {
+        JsonObject sector = this.sectorJson(sectorX, sectorY);
+        if(sector == null) { return; }
         for(JsonElement instanceElem: sector.get("entities").getAsJsonArray()) {
             JsonObject instance = instanceElem.getAsJsonObject();
             Entity entity = Serialization.deserialize(instance, this.origin);
             scene.with(entity.with(Sectors.Owned.class, new Sectors.Owned()));
         }
+    }
+
+    public void serializeSector(
+        long sectorX, long sectorY, Sectors.Observer observer, Scene scene
+    ) {
+        JsonArray instances = new JsonArray();
+        for(Entity entity: scene.allWith(Position.class, Sectors.Owned.class)) {
+            Position position = entity.get(Position.class);
+            if(observer.asSectorX(position.value) != sectorX) { continue; }
+            if(observer.asSectorY(position.value) != sectorY) { continue; }
+            JsonObject instance = Serialization.serialize(entity);
+            instances.add(instance);
+        }
+        JsonObject sector = new JsonObject();
+        sector.add("entities", instances);
+        String sectorId = Long.valueOf(sectorX) + "|" + Long.valueOf(sectorY);
+        this.json.get("sectors").getAsJsonObject().add(sectorId, sector);
+    }
+
+    public String serialize() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this.json);
     }
 
 }

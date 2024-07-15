@@ -2,8 +2,6 @@
 package typesafeschwalbe.luwest.util;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 import typesafeschwalbe.luwest.engine.Entity;
@@ -39,32 +37,16 @@ public final class Sectors {
     }
 
 
-    @FunctionalInterface
-    public interface DeletionHandler {
-        void handle(Scene scene, List<Entity> deleted);
-    }
-
-
     public static class Owned {}
 
     public static class Observer {
-        public long range = 4;
-        public DeletionHandler deletionHandler = (s, d) -> {};
+        public final long range;
         public final StaticScene staticScene;
-        private Sector sector = new Sector(0, 0);
+        private final Sector sector = new Sector(0, 0);
 
-        public Observer(StaticScene staticScene) {
+        public Observer(StaticScene staticScene, long range) {
             this.staticScene = staticScene;
-        }
-
-        public Observer withRange(long range) {
             this.range = range;
-            return this;
-        }
-
-        public Observer withDeletionHandler(DeletionHandler handler) {
-            this.deletionHandler = handler;
-            return this;
         }
 
         public long asSectorX(Vec2 pos) {
@@ -89,14 +71,9 @@ public final class Sectors {
         }
 
         private void deleteUnobserved(Scene scene) {
-            LinkedList<Entity> deleted = new LinkedList<>();
             for(Entity entity: scene.allWith(Owned.class, Position.class)) {
                 if(this.isObserved(entity)) { continue; }
-                deleted.add(entity);
                 scene.remove(entity);
-            }
-            if(deleted.size() > 0) {
-                this.deletionHandler.handle(scene, deleted);
             }
         }
 

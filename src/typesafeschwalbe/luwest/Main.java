@@ -9,31 +9,34 @@ import javax.swing.JOptionPane;
 import typesafeschwalbe.luwest.scenes.Overworld;
 import typesafeschwalbe.luwest.util.Editor;
 import typesafeschwalbe.luwest.engine.Engine;
-import typesafeschwalbe.luwest.engine.Scene;
 
 public class Main {
     
     public static void main(String[] args) {
         try {
-            String title = null;
-            Scene scene = null;
             for(int argI = 0; argI < args.length - 1; argI += 1) {
                 if(args[argI].equals("--edit")) {
-                    title = "Luwest Editor";
-                    scene = Editor.createScene(args[argI + 1]);
+                    Main.startEditor(args[argI + 1]);
+                    return;
                 }
             }
-            if(title == null) {
-                title = "Luwest";
-                scene = Overworld.createScene();
-            }
-            Engine.init(title);
-            Engine.setScene(scene);
-            Engine.start();
+            Main.startGame();
         } catch(Exception e) {
             Main.handleCrash(e);
             System.exit(1);
         }
+    }
+
+    private static void startEditor(String editedPath) {
+        Engine.init("Luwest Editor");
+        Engine.setScene(new Editor(editedPath).scene);
+        Engine.start();
+    }
+
+    private static void startGame() {
+        Engine.init("Luwest");
+        Engine.setScene(Overworld.createScene());
+        Engine.start();
     }
 
     private static void handleCrash(Exception e) {
