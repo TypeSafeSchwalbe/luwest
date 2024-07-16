@@ -50,11 +50,11 @@ public final class Sectors {
         }
 
         public long asSectorX(Vec2 pos) {
-            return (long) pos.x / this.staticScene.sectorSize;
+            return (long) Math.floor(pos.x / this.staticScene.sectorSize);
         }
 
         public long asSectorY(Vec2 pos) {
-            return (long) pos.y / this.staticScene.sectorSize;
+            return (long) Math.floor(pos.y / this.staticScene.sectorSize);
         }
 
         public Sector asSector(Vec2 pos) {

@@ -7,7 +7,7 @@ import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.PrintWriter; 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -175,7 +175,7 @@ public class Editor {
             if(Engine.window().keyPressed(KeyEvent.VK_C)) {
                 this.beginTextInput(entityType -> {
                     this.setMode(new CreateEntityMode(
-                        entityType.trim(), scene
+                        entityType.trim(), this
                     ));
                 });
             } else if(Engine.window().keyPressed(KeyEvent.VK_S)) {
@@ -227,9 +227,9 @@ public class Editor {
                 Vec2 worldPos = conv
                     .posInWorld(Engine.window().mousePosition());
                 g.drawString(
-                    (Math.floor(worldPos.x * 100.0) / 100.0) 
+                    ((long) (worldPos.x * 100.0) / 100.0) 
                         + " " 
-                        + (Math.floor(worldPos.y * 100.0) / 100.0),
+                        + ((long) (worldPos.y * 100.0) / 100.0),
                     10, Engine.window().height() - 10
                 );
             });
@@ -286,6 +286,7 @@ public class Editor {
         private final String entityType;
         private Entity preview;
         private boolean placementAllowed = true;
+        private final double stepSize;
 
         private void createPreview(Scene scene) {
             this.preview = Serialization
@@ -293,9 +294,11 @@ public class Editor {
             scene.with(this.preview);
         }
 
-        CreateEntityMode(String entityType, Scene scene) {
+        CreateEntityMode(String entityType, Editor editor) {
             this.entityType = entityType;
-            this.createPreview(scene);
+            this.createPreview(editor.scene);
+            this.stepSize = 1.0 
+                / editor.staticScene.json.get("grid_density").getAsLong();
         }
 
         @Override
@@ -309,7 +312,10 @@ public class Editor {
                     Camera.Conversion conv = camera
                         .get(Camera.Conversion.class);
                     position.value = conv
-                        .posInWorld(Engine.window().mousePosition());
+                        .posInWorld(Engine.window().mousePosition())
+                        .div(this.stepSize)
+                        .map(e -> (long) e)
+                        .mul(this.stepSize);
                 }
             }
             boolean shouldPlaceEntity = this.placementAllowed
@@ -333,8 +339,122 @@ public class Editor {
 
 
     private static class SelectEntityMode implements EditorMode {
+        private enum SelectionType {
+            REPLACE,
+            ADD,
+            SUBTRACT;
+        }
+        
+        private HashSet<Entity> selected = new HashSet<>();
+        private Optional<Vec2> selectionStart = Optional.empty();
+        private Optional<SelectionType> selectionType = Optional.empty();
+
         @Override
         public String getName() { return "select"; }
+
+        private void handleSelections(Scene scene, Editor editor) {
+            boolean startSelection = selectionStart.isEmpty() 
+                && Engine.window().mousePressed(MouseEvent.BUTTON1);
+            if(startSelection) {
+                this.selectionStart = Optional
+                    .of(Engine.window().mousePosition());
+                if(Engine.window().keyPressed(KeyEvent.VK_SHIFT)) {
+                    this.selectionType = Optional.of(SelectionType.ADD);
+                } else if(Engine.window().keyPressed(KeyEvent.VK_ALT)) {
+                    this.selectionType = Optional.of(SelectionType.SUBTRACT);
+                } else {
+                    this.selectionType = Optional.of(SelectionType.REPLACE);    
+                }
+            }
+            boolean endSelection = selectionStart.isPresent()
+                && !Engine.window().mousePressed(MouseEvent.BUTTON1);
+            if(endSelection) {
+                for(Entity camera: scene.allWith(Camera.Conversion.class)) {
+                    Camera.Conversion conv = camera
+                        .get(Camera.Conversion.class);
+                    Vec2 boundA = conv.posInWorld(this.selectionStart.get());
+                    Vec2 boundB = conv
+                        .posInWorld(Engine.window().mousePosition());
+                    if(this.selectionType.get() == SelectionType.REPLACE) {
+                        this.selected.clear();
+                    }
+                    for(Entity selected: scene.allWith(Sectors.Owned.class)) {
+                        Vec2 pos = selected.get(Position.class).value;
+                        if(pos.x < Math.min(boundA.x, boundB.x)) { continue; }
+                        if(pos.x > Math.max(boundA.x, boundB.x)) { continue; }
+                        if(pos.y < Math.min(boundA.y, boundB.y)) { continue; }
+                        if(pos.y > Math.max(boundA.y, boundB.y)) { continue; }
+                        switch(this.selectionType.get()) {
+                            case REPLACE:
+                            case ADD: {
+                                this.selected.add(selected);
+                            } break;
+                            case SUBTRACT: {
+                                this.selected.remove(selected);
+                            } break;
+                        }
+                    }
+                }
+                selectionStart = Optional.empty();
+            }
+        }
+
+        private void deleteSelected(Scene scene, Editor editor) {
+            boolean doDeletion = Engine.window().keyPressed(KeyEvent.VK_DELETE)
+                || Engine.window().keyPressed(KeyEvent.VK_BACK_SPACE);
+            if(!doDeletion) { return; }
+            for(Entity deleted: this.selected) {
+                scene.remove(deleted);
+            }
+            if(this.selected.size() > 0) {
+                scene.afterFrame(editor::serializeSceneUpdates);
+            }
+            this.selected.clear();
+        }
+
+        @Override
+        public void update(Scene scene, Editor editor) {
+            this.handleSelections(scene, editor);
+            this.deleteSelected(scene, editor);
+        }
+
+        @Override
+        public void render(Scene scene, Editor editor) {
+            for(Entity camera: scene.allWith(
+                Camera.Buffer.class, Camera.Conversion.class
+            )) {
+                Camera.Conversion conv = camera.get(Camera.Conversion.class);
+                Camera.Buffer buff = camera.get(Camera.Buffer.class);
+                for(Entity entity: scene.allWith(Sectors.Owned.class)) {
+                    Vec2 pos = conv
+                        .posOnScreen(entity.get(Position.class).value.clone());
+                    buff.world.add(Double.POSITIVE_INFINITY, g -> {
+                        g.setColor(Color.WHITE);
+                        if(this.selected.contains(entity)) {
+                            g.fillRect(
+                                (int) pos.x - 10, (int) pos.y - 10, 20, 20
+                            );
+                        } else {
+                            g.drawRect(
+                                (int) pos.x - 10, (int) pos.y - 10, 20, 20
+                            );
+                        }
+                    });
+                }
+                if(this.selectionStart.isPresent()) {
+                    buff.world.add(Double.POSITIVE_INFINITY, g -> {
+                        g.setColor(Color.WHITE);
+                        Vec2 boundA = this.selectionStart.get();
+                        Vec2 boundB = Engine.window().mousePosition();
+                        int posX = (int) Math.min(boundA.x, boundB.x);
+                        int posY = (int) Math.min(boundA.y, boundB.y);
+                        int sizeX = (int) (Math.max(boundA.x, boundB.x) - posX);
+                        int sizeY = (int) (Math.max(boundA.y, boundB.y) - posY);
+                        g.drawRect(posX, posY, sizeX, sizeY);
+                    });
+                }
+            }
+        }
     }
 
 }

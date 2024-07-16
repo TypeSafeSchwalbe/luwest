@@ -19,8 +19,13 @@ public class Scene {
     private LinkedList<Entity> entities = new LinkedList<>();
     private HashSet<Entity> removedEntities = new HashSet<>();
     private ArrayList<SystemState> systems = new ArrayList<>();
+    private LinkedList<Runnable> frameEndHandlers = new LinkedList<>();
 
     public Scene() {}
+
+    public void afterFrame(Runnable handler) {
+        this.frameEndHandlers.add(handler);
+    }
 
     public Scene with(Entity... entities) {
         this.entities.addAll(List.of(entities));
@@ -103,6 +108,10 @@ public class Scene {
         }
         this.entities.removeAll(this.removedEntities);
         this.removedEntities.clear();
+        for(Runnable handler: this.frameEndHandlers) {
+            handler.run();
+        }
+        this.frameEndHandlers.clear();
     }
 
 }

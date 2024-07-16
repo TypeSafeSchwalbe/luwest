@@ -70,6 +70,17 @@ public class Vec2 implements Cloneable {
         return this;
     }
 
+    @FunctionalInterface
+    public interface ComponentMapping {
+        double map(double component);
+    }
+
+    public Vec2 map(ComponentMapping f) {
+        this.x = f.map(this.x);
+        this.y = f.map(this.y);
+        return this;
+    }
+
     public double len() {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
