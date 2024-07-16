@@ -54,6 +54,7 @@ public class Editor {
                 this::renderTextInput,
                 this::renderMode,
                 this::renderMousePosition,
+                this::renderUnsavedChanges,
                 Camera::renderAll,
 
                 Camera::showBuffers
@@ -62,6 +63,9 @@ public class Editor {
             "res/fonts/jetbrains_mono.ttf", Resource.EMBEDDED
         );
     }
+
+
+    private boolean hasUnsavedChanges = false;
 
     // /!\ IMPORTANT /!\
     // THIS SHOULD RUN EVERY TIME THE SCENE IS MODIFIED!
@@ -78,6 +82,7 @@ public class Editor {
             );
             reset.add(sector);
         }
+        this.hasUnsavedChanges = true;
     }
 
     public void saveScene() {
@@ -85,6 +90,26 @@ public class Editor {
             pw.println(this.staticScene.serialize());
         } catch(FileNotFoundException e) {
             throw new RuntimeException(e);
+        }
+        this.hasUnsavedChanges = false;
+    }
+
+    public void renderUnsavedChanges(Scene scene) {
+        if(!this.hasUnsavedChanges) { return; }
+        for(Entity camera: scene.allWith(Camera.Buffer.class)) {
+            Camera.Buffer buffer = camera.get(Camera.Buffer.class);
+            buffer.world.add(Double.POSITIVE_INFINITY, g -> {
+                g.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING, 
+                    RenderingHints.VALUE_ANTIALIAS_ON
+                );
+                g.setFont(this.font.get().deriveFont(Font.BOLD, 15));
+                g.setColor(Color.BLACK);
+                g.drawString(
+                    "unsaved changes", 
+                    10, 10 + 20 + 10 + 15
+                ); 
+            });
         }
     }
 
@@ -128,31 +153,45 @@ public class Editor {
 
     public interface EditorMode {
         String getName();
-        void update(Scene scene);
-        void render(Scene scene);
+        default void update(Scene scene, Editor editor) {}
+        default void render(Scene scene, Editor editor) {}
+        default void exit(Scene scene, Editor editor) {}
     }
 
     private EditorMode currentMode = new SelectEntityMode();
 
+    private void setMode(EditorMode mode) {
+        this.currentMode.exit(this.scene, this);
+        this.currentMode = mode;
+    }
+
     private void selectMode(Scene scene) {
         if(this.inTextInput) { return; }
-        if(Engine.window().keyPressed(KeyEvent.VK_C)) {
-            this.beginTextInput(entityType -> {
-                this.currentMode = new CreateEntityMode(entityType.trim());
-            });
-        } else if(Engine.window().keyPressed(KeyEvent.VK_S)) {
-            this.currentMode = new SelectEntityMode();
+        if(Engine.window().keyPressed(KeyEvent.VK_CONTROL)) {
+            if(Engine.window().keyPressed(KeyEvent.VK_S)) {
+                this.saveScene();
+            }
+        } else {
+            if(Engine.window().keyPressed(KeyEvent.VK_C)) {
+                this.beginTextInput(entityType -> {
+                    this.setMode(new CreateEntityMode(
+                        entityType.trim(), scene
+                    ));
+                });
+            } else if(Engine.window().keyPressed(KeyEvent.VK_S)) {
+                this.setMode(new SelectEntityMode());
+            }
         }
     }
 
     private void updateMode(Scene scene) {
         if(this.inTextInput) { return; }
-        this.currentMode.update(scene);
+        this.currentMode.update(scene, this);
     }
 
     private void renderMode(Scene scene) {
         if(!this.inTextInput) {
-            this.currentMode.render(scene);
+            this.currentMode.render(scene, this);
         }
         for(Entity camera: scene.allWith(Camera.Buffer.class)) {
             Camera.Buffer buffer = camera.get(Camera.Buffer.class);
@@ -244,39 +283,58 @@ public class Editor {
 
 
     private static class CreateEntityMode implements EditorMode {
-        private String entityType;
+        private final String entityType;
+        private Entity preview;
+        private boolean placementAllowed = true;
 
-        CreateEntityMode(String entityType) {
+        private void createPreview(Scene scene) {
+            this.preview = Serialization
+                .createInstance(entityType, Resource.EXTERNAL);
+            scene.with(this.preview);
+        }
+
+        CreateEntityMode(String entityType, Scene scene) {
             this.entityType = entityType;
+            this.createPreview(scene);
         }
 
         @Override
-        public String getName() { return "CREATE " + this.entityType; }
+        public String getName() { return "create " + this.entityType; }
 
         @Override
-        public void update(Scene scene) {
-
+        public void update(Scene scene, Editor editor) {
+            if(this.preview.has(Position.class)) {
+                Position position = this.preview.get(Position.class);
+                for(Entity camera: scene.allWith(Camera.Conversion.class)) {
+                    Camera.Conversion conv = camera
+                        .get(Camera.Conversion.class);
+                    position.value = conv
+                        .posInWorld(Engine.window().mousePosition());
+                }
+            }
+            boolean shouldPlaceEntity = this.placementAllowed
+                && Engine.window().mousePressed(MouseEvent.BUTTON1);
+            if(shouldPlaceEntity) {
+                this.preview.with(Sectors.Owned.class, new Sectors.Owned());
+                this.createPreview(scene);
+                editor.serializeSceneUpdates();
+                this.placementAllowed = false;
+            }
+            if(!Engine.window().mousePressed(MouseEvent.BUTTON1)) {
+                this.placementAllowed = true;
+            }
         }
 
         @Override
-        public void render(Scene scene) {
-
+        public void exit(Scene scene, Editor editor) {
+            scene.remove(this.preview);
         }
     }
 
+
     private static class SelectEntityMode implements EditorMode {
         @Override
-        public String getName() { return "SELECT"; }
-
-        @Override
-        public void update(Scene scene) {
-
-        }
-
-        @Override
-        public void render(Scene scene) {
-
-        }
+        public String getName() { return "select"; }
     }
 
 }

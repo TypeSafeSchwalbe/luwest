@@ -36,19 +36,20 @@ public class StaticScene {
         }
     }
 
-    public JsonObject sectorJson(long sectorX, long sectorY) {
+    public JsonArray sectorJson(long sectorX, long sectorY) {
         String sectorId = Long.valueOf(sectorX) + "|" + Long.valueOf(sectorY);
         JsonObject sectors = this.json.get("sectors").getAsJsonObject();
         if(!sectors.has(sectorId)) { return null; }
-        return sectors.get(sectorId).getAsJsonObject();
+        return sectors.get(sectorId).getAsJsonArray();
     }
 
     public void deserializeSector(long sectorX, long sectorY, Scene scene) {
-        JsonObject sector = this.sectorJson(sectorX, sectorY);
+        JsonArray sector = this.sectorJson(sectorX, sectorY);
         if(sector == null) { return; }
-        for(JsonElement instanceElem: sector.get("entities").getAsJsonArray()) {
+        for(JsonElement instanceElem: sector) {
             JsonObject instance = instanceElem.getAsJsonObject();
-            Entity entity = Serialization.deserialize(instance, this.origin);
+            Entity entity = Serialization
+                .deserializeInstance(instance, this.origin);
             scene.with(entity.with(Sectors.Owned.class, new Sectors.Owned()));
         }
     }
@@ -56,16 +57,14 @@ public class StaticScene {
     public void serializeSector(
         long sectorX, long sectorY, Sectors.Observer observer, Scene scene
     ) {
-        JsonArray instances = new JsonArray();
+        JsonArray sector = new JsonArray();
         for(Entity entity: scene.allWith(Position.class, Sectors.Owned.class)) {
             Position position = entity.get(Position.class);
             if(observer.asSectorX(position.value) != sectorX) { continue; }
             if(observer.asSectorY(position.value) != sectorY) { continue; }
-            JsonObject instance = Serialization.serialize(entity);
-            instances.add(instance);
+            JsonObject instance = Serialization.serializeInstance(entity);
+            sector.add(instance);
         }
-        JsonObject sector = new JsonObject();
-        sector.add("entities", instances);
         String sectorId = Long.valueOf(sectorX) + "|" + Long.valueOf(sectorY);
         this.json.get("sectors").getAsJsonObject().add(sectorId, sector);
     }
