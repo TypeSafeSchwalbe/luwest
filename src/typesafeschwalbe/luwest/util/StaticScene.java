@@ -66,7 +66,12 @@ public class StaticScene {
             sector.add(instance);
         }
         String sectorId = Long.valueOf(sectorX) + "|" + Long.valueOf(sectorY);
-        this.json.get("sectors").getAsJsonObject().add(sectorId, sector);
+        JsonObject sectors = this.json.get("sectors").getAsJsonObject();
+        if(sector.size() > 0) {
+            sectors.add(sectorId, sector);
+        } else {
+            sectors.remove(sectorId);
+        }
     }
 
     public String serialize() {

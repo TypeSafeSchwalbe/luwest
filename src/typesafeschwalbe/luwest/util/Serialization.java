@@ -58,6 +58,11 @@ public final class Serialization {
         JsonObject type = Resource.json(typePath, origin).get();
         String serializerName = type.get("serializer").getAsString();
         Serializer serializer = Serialization.SERIALIZERS.get(serializerName);
+        if(serializer == null) {
+            throw new RuntimeException(
+                "'" + serializerName + "' is not a registered serializer!"
+            );
+        }
         return serializer.deserialize(Optional.of(instance), type, origin)
             .with(Serializable.class, new Serializable(typePath, serializer));
     }

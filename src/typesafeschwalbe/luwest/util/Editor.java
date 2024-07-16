@@ -24,7 +24,7 @@ public class Editor {
 
     private final Resource<Font> font;
 
-    public Editor(String editedPath) {
+    public Editor(String editedPath, Scene.System... renderers) {
         this.editedPath = editedPath;
         this.staticScene = new StaticScene(editedPath, Resource.EXTERNAL);
         this.observer = new Sectors.Observer(this.staticScene, 4);
@@ -44,13 +44,17 @@ public class Editor {
                 this::selectMode,
                 this::updateMode,
  
-                Camera::computeOffsets,
-
+                Camera::computeOffsets
+            )
+            .with(
                 SpriteRenderer::renderReflections,
                 Camera::renderReflections,
-
+    
                 staticScene::renderBackground,
-                SpriteRenderer::renderAll,
+                SpriteRenderer::renderAll
+            )
+            .with(renderers)
+            .with(
                 this::renderTextInput,
                 this::renderMode,
                 this::renderMousePosition,
@@ -70,17 +74,10 @@ public class Editor {
     // /!\ IMPORTANT /!\
     // THIS SHOULD RUN EVERY TIME THE SCENE IS MODIFIED!
     public void serializeSceneUpdates() {
-        HashSet<Sectors.Sector> reset = new HashSet<>();
-        for(Entity entity: this.scene.allWith(
-            Position.class, Sectors.Owned.class
-        )) {
-            Position position = entity.get(Position.class);
-            Sectors.Sector sector = this.observer.asSector(position.value);
-            if(reset.contains(sector)) { continue; }
+        for(Sectors.Sector sector: this.observer.observedSectors()) {
             this.staticScene.serializeSector(
                 sector.x, sector.y, this.observer, this.scene
             );
-            reset.add(sector);
         }
         this.hasUnsavedChanges = true;
     }
@@ -344,13 +341,13 @@ public class Editor {
             ADD,
             SUBTRACT;
         }
-        
-        private HashSet<Entity> selected = new HashSet<>();
-        private Optional<Vec2> selectionStart = Optional.empty();
-        private Optional<SelectionType> selectionType = Optional.empty();
 
         @Override
         public String getName() { return "select"; }
+
+        private HashSet<Entity> selected = new HashSet<>();
+        private Optional<Vec2> selectionStart = Optional.empty();
+        private Optional<SelectionType> selectionType = Optional.empty();
 
         private void handleSelections(Scene scene, Editor editor) {
             boolean startSelection = selectionStart.isEmpty() 
@@ -412,10 +409,44 @@ public class Editor {
             this.selected.clear();
         }
 
+        private boolean movementAllowed = true;
+        private Optional<Vec2> moveLastPos = Optional.empty();
+
+        private void moveSelected(Scene scene, Editor editor) {
+            boolean startMovement = this.movementAllowed
+                && this.moveLastPos.isEmpty()
+                && Engine.window().mousePressed(MouseEvent.BUTTON3);
+            boolean continueMovement = this.moveLastPos.isPresent()
+                && Engine.window().mousePressed(MouseEvent.BUTTON3);
+            if(startMovement) {
+                this.moveLastPos = Optional.of(Engine.window().mousePosition());
+                this.movementAllowed = false;
+            } else if(continueMovement) {
+                Vec2 screenOffset = Engine.window().mousePosition()
+                    .sub(this.moveLastPos.get());
+                this.moveLastPos = Optional.of(Engine.window().mousePosition());
+                for(Entity camera: scene.allWith(Camera.Conversion.class)) {
+                    Camera.Conversion conv = camera
+                        .get(Camera.Conversion.class);
+                    Vec2 offset = conv.sizeInWorld(screenOffset);
+                    for(Entity entity: this.selected) {
+                        entity.get(Position.class).value.add(offset);
+                    }
+                }
+                if(this.selected.size() > 0) {
+                    editor.serializeSceneUpdates();
+                }
+            } else if(!Engine.window().mousePressed(MouseEvent.BUTTON3)) {
+                this.moveLastPos = Optional.empty();
+                this.movementAllowed = true;
+            }
+        }
+
         @Override
         public void update(Scene scene, Editor editor) {
             this.handleSelections(scene, editor);
             this.deleteSelected(scene, editor);
+            this.moveSelected(scene, editor);
         }
 
         @Override

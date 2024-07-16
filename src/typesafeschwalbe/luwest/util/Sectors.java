@@ -3,6 +3,7 @@ package typesafeschwalbe.luwest.util;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.stream.LongStream;
 
 import typesafeschwalbe.luwest.engine.Entity;
 import typesafeschwalbe.luwest.engine.Scene;
@@ -40,13 +41,13 @@ public final class Sectors {
     public static class Owned {}
 
     public static class Observer {
-        public final long range;
+        public final long radius;
         public final StaticScene staticScene;
         private final Sector sector = new Sector(0, 0);
 
-        public Observer(StaticScene staticScene, long range) {
+        public Observer(StaticScene staticScene, long radius) {
             this.staticScene = staticScene;
-            this.range = range;
+            this.radius = radius;
         }
 
         public long asSectorX(Vec2 pos) {
@@ -67,7 +68,17 @@ public final class Sectors {
             long sectorY = this.asSectorY(position.value);
             long distance = Math.abs(sectorX - this.sector.x)
                 + Math.abs(sectorY - this.sector.y);
-            return distance <= this.range;
+            return distance / 2 <= this.radius;
+        }
+
+        public Iterable<Sector> observedSectors() {
+            long d = this.radius * 2 + 1;
+            return () -> LongStream.rangeClosed(0, d * d)
+                .mapToObj(i -> new Sector(
+                    i % d - this.radius + this.sector.x, 
+                    i / d - this.radius + this.sector.y
+                ))
+                .iterator();
         }
 
         private void deleteUnobserved(Scene scene) {
@@ -86,22 +97,10 @@ public final class Sectors {
                     this.asSectorY(position.value)
                 ));
             }
-            Sector checked = new Sector(0, 0);
-            long r = this.range / 2;
-            for(
-                checked.x = this.sector.x - r; 
-                checked.x <= this.sector.x + r; 
-                checked.x += 1
-            ) {
-                for(
-                    checked.y = this.sector.y - r;
-                    checked.y <= this.sector.y + r;
-                    checked.y += 1
-                ) {
-                    if(seen.contains(checked)) { continue; }
-                    this.staticScene
-                        .deserializeSector(checked.x, checked.y, scene);
-                }
+            for(Sector checked: this.observedSectors()) {
+                if(seen.contains(checked)) { continue; }
+                this.staticScene
+                    .deserializeSector(checked.x, checked.y, scene);
             }
         }
     }

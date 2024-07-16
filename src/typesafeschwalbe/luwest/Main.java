@@ -6,8 +6,9 @@ import java.io.PrintWriter;
 
 import javax.swing.JOptionPane;
 
-import typesafeschwalbe.luwest.scenes.Overworld;
+import typesafeschwalbe.luwest.scenes.*;
 import typesafeschwalbe.luwest.util.Editor;
+import typesafeschwalbe.luwest.util.Serialization;
 import typesafeschwalbe.luwest.engine.Engine;
 
 public class Main {
@@ -28,8 +29,12 @@ public class Main {
     }
 
     private static void startEditor(String editedPath) {
+        Serialization.define("lake", new Lake.LakeSerializer());
         Engine.init("Luwest Editor");
-        Engine.setScene(new Editor(editedPath).scene);
+        Engine.setScene(new Editor(
+            editedPath,
+            Lake::renderAll
+        ).scene);
         Engine.start();
     }
 
