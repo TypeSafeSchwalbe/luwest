@@ -1,10 +1,11 @@
 
 package typesafeschwalbe.luwest.util;
 
-import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashSet;
+import java.util.Optional;
 
 import typesafeschwalbe.luwest.engine.*;
 import typesafeschwalbe.luwest.math.Vec2;
@@ -22,14 +23,14 @@ public class Editor {
         this.observer = new Sectors.Observer(this.staticScene, 4);
         this.scene = new Scene()
             .with(
-                Camera.create(20.0)
+                Camera.create(Editor.CAMERA_ZOOM_SPEED * 4.0)
                     .with(Sectors.Observer.class, observer)
                     .with(Velocity.class, new Velocity())
             )
             .with(
                 Sectors::manageAll,
                 Editor::moveCamera,
-                Velocity::applyAll,
+                Editor::zoomCamera,
 
                 Camera::computeOffsets,
 
@@ -69,28 +70,48 @@ public class Editor {
     }
 
 
-    public static final double CAMERA_SPEED = 10.0;
+    private static record CameraAnchor(Vec2 mouse, Vec2 world) {}
+
+    public static Optional<CameraAnchor> CAMERA_ANCHOR = Optional.empty();
 
     public static void moveCamera(Scene scene) {
         for(Entity camera: scene.allWith(
-            Camera.Configuration.class, Velocity.class
+            Camera.Conversion.class, Position.class
         )) {
-            Vec2 vel = new Vec2();
-            if(Engine.window().keyPressed(KeyEvent.VK_W)) {
-                vel.y -= 1.0;
+            Camera.Conversion conversion = camera.get(Camera.Conversion.class);
+            Position position = camera.get(Position.class);
+            if(Engine.window().mousePressed(MouseEvent.BUTTON2)) {
+                if(Editor.CAMERA_ANCHOR.isEmpty()) {
+                    Editor.CAMERA_ANCHOR = Optional.of(new CameraAnchor(
+                        Engine.window().mousePosition(), 
+                        position.value.clone()
+                    ));
+                }
+                Vec2 mouseDiff = Engine.window().mousePosition()
+                    .sub(Editor.CAMERA_ANCHOR.get().mouse());
+                position.value = Editor.CAMERA_ANCHOR.get().world().clone()
+                    .sub(conversion.sizeInWorld(mouseDiff));
+            } else {
+                Editor.CAMERA_ANCHOR = Optional.empty();
             }
-            if(Engine.window().keyPressed(KeyEvent.VK_A)) {
-                vel.x -= 1.0;
-            }
-            if(Engine.window().keyPressed(KeyEvent.VK_D)) {
-                vel.x += 1.0;
-            }
-            if(Engine.window().keyPressed(KeyEvent.VK_S)) {
-                vel.y += 1.0;
-            }
-            Velocity velocity = camera.get(Velocity.class);
-            velocity.value = vel.normalize().mul(CAMERA_SPEED);
         }
+    }
+
+    public static final double CAMERA_ZOOM_SPEED = 5.0;
+    public static final double CAMERA_MIN_ZOOM = 1.0;
+    public static final double CAMERA_MAX_ZOOM = 50.0;
+
+    public static void zoomCamera(Scene scene) {
+        for(Entity camera: scene.allWith(Camera.Configuration.class)) {
+            Camera.Configuration config = camera.get(Camera.Configuration.class);
+            config.distance = Math.clamp(
+                config.distance 
+                    + Engine.window().scrollOffset() * Editor.CAMERA_ZOOM_SPEED,
+                Editor.CAMERA_MIN_ZOOM * Editor.CAMERA_ZOOM_SPEED,
+                Editor.CAMERA_MAX_ZOOM * Editor.CAMERA_ZOOM_SPEED
+            );
+        }
+        Engine.window().resetScrollOffset();
     }
 
 }
