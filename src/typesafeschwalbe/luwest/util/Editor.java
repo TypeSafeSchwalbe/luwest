@@ -53,6 +53,7 @@ public class Editor {
                 SpriteRenderer::renderAll,
                 this::renderTextInput,
                 this::renderMode,
+                this::renderMousePosition,
                 Camera::renderAll,
 
                 Camera::showBuffers
@@ -118,7 +119,7 @@ public class Editor {
                 g.setColor(Color.BLACK);
                 g.drawString(
                     "> " + Engine.window().typedText(), 
-                    10, Engine.window().height() - 10
+                    10, Engine.window().height() - 10 - 20 - 10
                 ); 
             });
         }
@@ -128,6 +129,7 @@ public class Editor {
     public interface EditorMode {
         String getName();
         void update(Scene scene);
+        void render(Scene scene);
     }
 
     private EditorMode currentMode = new SelectEntityMode();
@@ -149,6 +151,9 @@ public class Editor {
     }
 
     private void renderMode(Scene scene) {
+        if(!this.inTextInput) {
+            this.currentMode.render(scene);
+        }
         for(Entity camera: scene.allWith(Camera.Buffer.class)) {
             Camera.Buffer buffer = camera.get(Camera.Buffer.class);
             buffer.world.add(Double.POSITIVE_INFINITY, g -> {
@@ -161,6 +166,32 @@ public class Editor {
                 g.drawString(
                     this.currentMode.getName(), 
                     10, 10 + 20
+                );
+            });
+        }
+    }
+
+
+    private void renderMousePosition(Scene scene) {
+        for(Entity camera: scene.allWith(
+            Camera.Buffer.class, Camera.Conversion.class
+        )) {
+            Camera.Buffer buffer = camera.get(Camera.Buffer.class);
+            Camera.Conversion conv = camera.get(Camera.Conversion.class);
+            buffer.world.add(Double.POSITIVE_INFINITY, g -> {
+                g.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING, 
+                    RenderingHints.VALUE_ANTIALIAS_ON
+                );
+                g.setFont(this.font.get().deriveFont(Font.BOLD, 20));
+                g.setColor(Color.BLACK);
+                Vec2 worldPos = conv
+                    .posInWorld(Engine.window().mousePosition());
+                g.drawString(
+                    (Math.floor(worldPos.x * 100.0) / 100.0) 
+                        + " " 
+                        + (Math.floor(worldPos.y * 100.0) / 100.0),
+                    10, Engine.window().height() - 10
                 );
             });
         }
@@ -226,6 +257,11 @@ public class Editor {
         public void update(Scene scene) {
 
         }
+
+        @Override
+        public void render(Scene scene) {
+
+        }
     }
 
     private static class SelectEntityMode implements EditorMode {
@@ -234,6 +270,11 @@ public class Editor {
 
         @Override
         public void update(Scene scene) {
+
+        }
+
+        @Override
+        public void render(Scene scene) {
 
         }
     }
