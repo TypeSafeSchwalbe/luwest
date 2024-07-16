@@ -3,6 +3,7 @@ package typesafeschwalbe.luwest.util;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
@@ -109,6 +110,10 @@ public class Editor {
         for(Entity camera: scene.allWith(Camera.Buffer.class)) {
             Camera.Buffer buffer = camera.get(Camera.Buffer.class);
             buffer.world.add(Double.POSITIVE_INFINITY, g -> {
+                g.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING, 
+                    RenderingHints.VALUE_ANTIALIAS_ON
+                );
                 g.setFont(this.font.get().deriveFont(Font.BOLD, 20));
                 g.setColor(Color.BLACK);
                 g.drawString(
@@ -147,12 +152,16 @@ public class Editor {
         for(Entity camera: scene.allWith(Camera.Buffer.class)) {
             Camera.Buffer buffer = camera.get(Camera.Buffer.class);
             buffer.world.add(Double.POSITIVE_INFINITY, g -> {
+                g.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING, 
+                    RenderingHints.VALUE_ANTIALIAS_ON
+                );
                 g.setFont(this.font.get().deriveFont(Font.BOLD, 20));
                 g.setColor(Color.BLACK);
                 g.drawString(
                     this.currentMode.getName(), 
                     10, 10 + 20
-                ); 
+                );
             });
         }
     }
