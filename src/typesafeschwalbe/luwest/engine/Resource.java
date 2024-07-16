@@ -1,6 +1,7 @@
 
 package typesafeschwalbe.luwest.engine;
 
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -125,6 +126,12 @@ public class Resource<T> {
         });
     }
 
-
+    public static Resource<Font> ttfFont(String path, Origin origin) {
+        return Resource.getCachedOrRead(path, () -> {
+            try(InputStream is = origin.read(path)) {
+                return Font.createFont(Font.TRUETYPE_FONT, is);
+            }
+        });
+    }
 
 }

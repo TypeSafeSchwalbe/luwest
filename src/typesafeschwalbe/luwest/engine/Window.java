@@ -51,7 +51,8 @@ public class Window {
         this.panel = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.drawImage(buffer, 0, 0, null); // => buffer in Window
+                // 'buffer' is the field in 'Window'
+                g.drawImage(buffer, 0, 0, null);
             }
         };
         this.frame.add(this.panel);
@@ -62,7 +63,7 @@ public class Window {
         this.frame.addKeyListener(new KeyListener() {
             @Override public void keyTyped(KeyEvent e) {
                 char typed = e.getKeyChar();
-                // => typedText in Window
+                // 'typedText' is the field in 'Window'
                 if(typed != '\b') {
                     typedText.append(typed);
                     return;
@@ -72,26 +73,29 @@ public class Window {
                 }
             }
             @Override public void keyPressed(KeyEvent e) {
-                pressedKeys.add(e.getKeyCode()); // => pressedKeys in Window
+                // 'pressedKeys' is the field in 'Window'
+                pressedKeys.add(e.getKeyCode());
             }
             @Override public void keyReleased(KeyEvent e) {
-                pressedKeys.remove(e.getKeyCode()); // => pressedKeys in Window
+                // 'pressedKeys' is the field in 'Window'
+                pressedKeys.remove(e.getKeyCode());
             }
         });
         this.frame.addWindowFocusListener(new WindowFocusListener() {
             @Override public void windowGainedFocus(WindowEvent e) {}
             @Override public void windowLostFocus(WindowEvent e) {
-                pressedKeys.clear(); // => pressedKeys in Window
+                // 'pressedKeys' is the field in 'Window'
+                pressedKeys.clear();
             }
         });
         this.frame.addMouseMotionListener(new MouseMotionListener() {
             @Override public void mouseDragged(MouseEvent e) { 
-                // => mousePosition in Window
+                // 'mousePosition' is the field in 'Window'
                 mousePosition.x = e.getX();
                 mousePosition.y = e.getY();
             }
             @Override public void mouseMoved(MouseEvent e) {
-                // => mousePosition in Window
+                // 'mousePosition' is the field in 'Window'
                 mousePosition.x = e.getX();
                 mousePosition.y = e.getY();
             }
@@ -101,17 +105,17 @@ public class Window {
             @Override public void mouseEntered(MouseEvent e) {}
             @Override public void mouseExited(MouseEvent e) {}
             @Override public void mousePressed(MouseEvent e) {
-                // => pressedButtons in Window
+                // 'pressedButtons' is the field in 'Window'
                 pressedButtons.add(e.getButton());
             }
             @Override public void mouseReleased(MouseEvent e) {
-                // => pressedButtons in Window
+                // 'pressedButtons' is the field in 'Window'
                 pressedButtons.remove(e.getButton());
             }
         });
         this.frame.addMouseWheelListener(new MouseWheelListener() {
             @Override public void mouseWheelMoved(MouseWheelEvent e) {
-                // => scrollOffset in Window
+                // 'scrollOffset' is the field in 'Window'
                 scrollOffset += e.getWheelRotation();
             }
         });
