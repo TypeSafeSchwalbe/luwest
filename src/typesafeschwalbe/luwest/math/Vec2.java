@@ -91,4 +91,9 @@ public class Vec2 implements Cloneable {
         return this.div(length);
     }
 
+    @Override
+    public String toString() {
+        return "(" + this.x + ", " + this.y + ")";
+    }
+
 }
