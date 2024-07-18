@@ -2,11 +2,7 @@
 package typesafeschwalbe.luwest.scenes;
 
 import typesafeschwalbe.luwest.engine.*;
-import typesafeschwalbe.luwest.util.Camera;
-import typesafeschwalbe.luwest.util.Sectors;
-import typesafeschwalbe.luwest.util.Serialization;
-import typesafeschwalbe.luwest.util.SpriteRenderer;
-import typesafeschwalbe.luwest.util.StaticScene;
+import typesafeschwalbe.luwest.util.*;
 
 public class Overworld {
 
@@ -21,6 +17,8 @@ public class Overworld {
             ))
             .with(
                 Sectors::manageAll,
+                Velocity::handleAll,
+                Collision::handleAll,
                 Camera::computeOffsets,
 
                 SpriteRenderer::renderReflections,

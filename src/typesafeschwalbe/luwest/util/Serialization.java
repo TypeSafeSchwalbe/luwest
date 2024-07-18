@@ -1,9 +1,12 @@
 
 package typesafeschwalbe.luwest.util;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Optional;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -78,6 +81,8 @@ public final class Serialization {
     public static class PropSerializer implements Serializer {
         static final HashMap<JsonObject, SpriteRenderer> RENDERER_CACHE
             = new HashMap<>();
+        static final HashMap<JsonObject, Collision> COLLISION_CACHE
+            = new HashMap<>();
 
         @Override
         public Entity deserialize(
@@ -90,18 +95,33 @@ public final class Serialization {
                 at = new Vec2();
             }
             String spritePath = type.get("sprite").getAsString();
+            Resource<BufferedImage> sprite = Resource.image(spritePath, origin);
             Vec2 anchor = new Vec2(type.get("anchor").getAsJsonArray());
             Vec2 size = new Vec2(type.get("size").getAsJsonArray());
             SpriteRenderer renderer = PropSerializer.RENDERER_CACHE.get(type);
             if(renderer == null) {
-                renderer = new SpriteRenderer(
-                    Resource.image(spritePath, origin), anchor, size
-                );
+                renderer = new SpriteRenderer(sprite, anchor, size);
                 PropSerializer.RENDERER_CACHE.put(type, renderer);
+            }
+            Collision collision = PropSerializer.COLLISION_CACHE.get(type);
+            if(collision == null) {
+                collision = new Collision();
+                JsonArray colliders = type.get("colliders").getAsJsonArray();
+                for(JsonElement boxElem: colliders) {
+                    JsonObject box = boxElem.getAsJsonObject();
+                    Vec2 bOffset = new Vec2(box.get("offset").getAsJsonArray())
+                        .div(sprite.get().getWidth(), sprite.get().getHeight())
+                        .mul(size);
+                    Vec2 bSize = new Vec2(box.get("size").getAsJsonArray())
+                        .div(sprite.get().getWidth(), sprite.get().getHeight())
+                        .mul(size);
+                    collision.with(new Collision.BoxCollider(bOffset, bSize));
+                }
             }
             return new Entity()
                 .with(Position.class, new Position(at))
-                .with(SpriteRenderer.class, renderer);
+                .with(SpriteRenderer.class, renderer)
+                .with(Collision.class, collision);
         }
 
         @Override

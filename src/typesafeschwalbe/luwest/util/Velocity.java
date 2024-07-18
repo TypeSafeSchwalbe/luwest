@@ -17,12 +17,30 @@ public class Velocity {
     }
 
 
-    public static void applyAll(Scene scene) {
+    private static void applyAll(Scene scene) {
         for(Entity entity: scene.allWith(Position.class, Velocity.class)) {
             Position position = entity.get(Position.class);
             Velocity velocity = entity.get(Velocity.class);
             position.value.add(velocity.value.mul(Engine.deltaTime()));
         }
+    }
+
+    public static final double FRICTION = 0.1;
+    public static final double DEADZONE = 0.001;
+
+    private static void reduceAll(Scene scene) {
+        for(Entity entity: scene.allWith(Velocity.class)) {
+            Velocity velocity = entity.get(Velocity.class);
+            velocity.value.mul(1 - Velocity.FRICTION * Engine.deltaTime());
+            if(velocity.value.len() < Velocity.DEADZONE) {
+                velocity.value.set(0, 0);
+            }
+        }
+    }
+
+    public static void handleAll(Scene scene) {
+        Velocity.applyAll(scene);
+        Velocity.reduceAll(scene);
     }
 
 }

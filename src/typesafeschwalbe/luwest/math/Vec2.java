@@ -38,6 +38,18 @@ public class Vec2 implements Cloneable {
     }
 
 
+    public Vec2 set(double x, double y) {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
+    public Vec2 negate() {
+        this.x = -this.x;
+        this.y = -this.y;
+        return this;
+    }
+
     public Vec2 add(Vec2 other) { return this.add(other.x, other.y); }
     public Vec2 add(double f) { return this.add(f, f); }
     public Vec2 add(double x, double y) {

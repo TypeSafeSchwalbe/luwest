@@ -2,5 +2,22 @@
   "background": "#FF5555",
   "sector_size": 16,
   "grid_density": 16,
-  "sectors": {}
+  "sectors": {
+    "-1|0": [
+      {
+        "at": [
+          -4.234375,
+          6.90625
+        ],
+        "type": "res/props/oak_tree_1.json"
+      },
+      {
+        "at": [
+          -1.859375,
+          7.53125
+        ],
+        "type": "res/props/oak_tree_1.json"
+      }
+    ]
+  }
 }
