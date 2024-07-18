@@ -1,0 +1,9 @@
+{
+    "serializer": "prop",
+    "sprite": "res/textures/mushrooms.png",
+    "anchor": [8, 16],
+    "size": [1.0, 1.0],
+    "colliders": []
+}
+
+

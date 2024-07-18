@@ -1,22 +1,185 @@
 {
-  "background": "#FF5555",
+  "background": "#647d34",
   "sector_size": 16,
   "grid_density": 16,
   "sectors": {
     "-1|0": [
       {
         "at": [
-          -4.234375,
-          6.90625
+          -2.984375,
+          7.34375
         ],
         "type": "res/props/oak_tree_1.json"
       },
       {
         "at": [
-          -1.859375,
-          7.53125
+          -3.3125,
+          7.875
         ],
-        "type": "res/props/oak_tree_1.json"
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -2.5,
+          8.5625
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -2.125,
+          7.625
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -3.75,
+          6.9375
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -2.375,
+          6.6875
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -1.375,
+          8.3125
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -1.1875,
+          7.25
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -0.3125,
+          8.5625
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -5.375,
+          8.625
+        ],
+        "type": "res/props/oak_tree_2.json"
+      },
+      {
+        "at": [
+          -0.6875,
+          7.8125
+        ],
+        "type": "res/props/oak_tree_2.json"
+      },
+      {
+        "at": [
+          -3.25,
+          9.4375
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -2.375,
+          9.125
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -4.0625,
+          8.875
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -3.9375,
+          9.9375
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -5.125,
+          9.25
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -6.25,
+          9.5
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -0.9375,
+          9.375
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -0.125,
+          10.0625
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -0.5,
+          7.9375
+        ],
+        "type": "res/props/mushrooms.json"
+      },
+      {
+        "at": [
+          -2.4375,
+          8.8125
+        ],
+        "type": "res/props/mushrooms.json"
+      },
+      {
+        "at": [
+          -0.3125,
+          8.0
+        ],
+        "type": "res/props/grass_1.json"
+      }
+    ],
+    "0|0": [
+      {
+        "at": [
+          0.0,
+          7.5625
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          2.4375,
+          10.125
+        ],
+        "type": "res/props/oak_tree_2.json"
+      },
+      {
+        "at": [
+          1.0,
+          9.8125
+        ],
+        "type": "res/props/grass_1.json"
       }
     ]
   }

@@ -81,7 +81,6 @@ public class Collision {
             double velR = velLS == 0
                 ? 0.5 
                 : velA.value.len() / velLS;
-            System.out.println(velR);
             Vec2 offsetA = nPosA.clone().sub(posA.value).mul(velR);
             Vec2 offsetB = nPosB.clone().sub(posB.value).mul(1 - velR);
             posA.value.add(offsetA);
