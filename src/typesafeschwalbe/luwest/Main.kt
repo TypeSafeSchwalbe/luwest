@@ -12,9 +12,6 @@ import typesafeschwalbe.luwest.util.Editor;
 import typesafeschwalbe.luwest.util.Serialization;
 import typesafeschwalbe.luwest.scenes.*
 
-fun defineSerializers() {
-    Serialization.define("lake", Lake.LakeSerializer())
-}
 fun main(args: Array<String>) {
     defineSerializers()
     val edited = (1..<args.size).asSequence()
@@ -29,6 +26,10 @@ fun main(args: Array<String>) {
         handleException(e)
         exitProcess(1)
     }
+}
+
+fun defineSerializers() {
+    Serialization.define("lake", Lake.LakeSerializer())
 }
 
 fun startEditor(edited: String) {
