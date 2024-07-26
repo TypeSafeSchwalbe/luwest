@@ -84,7 +84,7 @@
       {
         "at": [
           -3.25,
-          9.4375
+          9.5625
         ],
         "type": "res/props/grass_1.json"
       },
@@ -105,21 +105,21 @@
       {
         "at": [
           -3.9375,
-          9.9375
+          10.0625
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
           -5.125,
-          9.25
+          9.375
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
           -6.25,
-          9.5
+          9.625
         ],
         "type": "res/props/grass_1.json"
       },
