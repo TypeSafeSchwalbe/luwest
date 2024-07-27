@@ -29,14 +29,14 @@ fun main(args: Array<String>) {
 }
 
 fun defineSerializers() {
-    Serialization.define("lake", Lake.LakeSerializer())
+    Serialization.define("lake", LakeSerializer())
 }
 
 fun startEditor(edited: String) {
     Engine.init("Luwest Editor")
     Engine.setScene(Editor(
         edited, 
-        Lake::renderAll
+        ::renderLakes
     ).scene)
     Engine.start()
 }

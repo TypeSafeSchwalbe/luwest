@@ -5,12 +5,9 @@ import typesafeschwalbe.luwest.engine.*
 import typesafeschwalbe.luwest.util.*
 
 fun overworld(): Scene {
-    Serialization.define("lake", Lake.LakeSerializer())
     val scene = StaticScene("res/scenes/overworld.json", Resource.EMBEDDED)
     return Scene()
-        .with(Camera.create(20.0).with(
-            Sectors.Observer::class.java, Sectors.Observer(scene, 4)
-        ))
+        .with(Camera.create(20.0).with(Sectors.Observer(scene, 4)))
         .with(
             Sectors::manageAll,
             Velocity::handleAll,
@@ -22,7 +19,7 @@ fun overworld(): Scene {
 
             scene::renderBackground,
             SpriteRenderer::renderAll,
-            Lake::renderAll,
+            ::renderLakes,
             Camera::renderAll,
             
             Camera::showBuffers
