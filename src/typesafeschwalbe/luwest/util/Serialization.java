@@ -96,11 +96,25 @@ public final class Serialization {
             }
             String spritePath = type.get("sprite").getAsString();
             Resource<BufferedImage> sprite = Resource.image(spritePath, origin);
-            Vec2 anchor = new Vec2(type.get("anchor").getAsJsonArray());
             Vec2 size = new Vec2(type.get("size").getAsJsonArray());
             SpriteRenderer renderer = PropSerializer.RENDERER_CACHE.get(type);
             if(renderer == null) {
-                renderer = new SpriteRenderer(sprite, anchor, size);
+                Vec2 srcOffset;
+                Vec2 srcSize;
+                if(type.has("area")) {
+                    JsonObject area = type.get("area").getAsJsonObject();
+                    srcOffset = new Vec2(area.get("offset").getAsJsonArray());
+                    srcSize = new Vec2(area.get("size").getAsJsonArray());
+                } else {
+                    srcOffset = new Vec2();
+                    srcSize = new Vec2(
+                        sprite.get().getWidth(), sprite.get().getHeight()
+                    );
+                }
+                Vec2 anchor = new Vec2(type.get("anchor").getAsJsonArray());
+                renderer = new SpriteRenderer(
+                    sprite, srcOffset, srcSize, anchor, size
+                );
                 PropSerializer.RENDERER_CACHE.put(type, renderer);
             }
             Collision collision = PropSerializer.COLLISION_CACHE.get(type);

@@ -22,16 +22,14 @@ fun renderLakes(scene: Scene) {
         for((_, renderer, position) in scene.allWith(
             WaterRenderer::class, Position::class
         )) {
-            val sTopLeft = conv.posOnScreen(position.value.clone())
-            val sBottomRight = conv.posOnScreen(
-                position.value.clone() + renderer.size
-            )
-            val sWidth = Math.ceil(sBottomRight.x - sTopLeft.x).toInt()
-            val sHeight = Math.ceil(sBottomRight.y - sTopLeft.y).toInt()
-            buffer.world.add(sTopLeft.y) { g ->
+            val sPos = conv.posOnScreen(position.value.clone())
+            val sSize = conv.sizeOnScreen(renderer.size.clone())
+            val sWidth = Math.ceil(sSize.x).toInt()
+            val sHeight = Math.ceil(sSize.y).toInt()
+            buffer.world.add(sPos.y) { g ->
                 g.setColor(Color(126, 196, 193))
                 g.fillRect(
-                    sTopLeft.x.toInt(), sTopLeft.y.toInt(), 
+                    sPos.x.toInt(), sPos.y.toInt(), 
                     sWidth, sHeight
                 )
                 val ogComposite = g.getComposite()
@@ -40,10 +38,10 @@ fun renderLakes(scene: Scene) {
                 ))
                 g.drawImage(
                     buffer.reflectBuff,
-                    sTopLeft.x.toInt(), sTopLeft.y.toInt(),
-                    sBottomRight.x.toInt(), sBottomRight.y.toInt(),
-                    sTopLeft.x.toInt(), sTopLeft.y.toInt(),
-                    sBottomRight.x.toInt(), sBottomRight.y.toInt(),
+                    sPos.x.toInt(), sPos.y.toInt(),
+                    sPos.x.toInt() + sWidth, sPos.y.toInt() + sHeight,
+                    sPos.x.toInt(), sPos.y.toInt(),
+                    sPos.x.toInt() + sWidth, sPos.y.toInt() + sHeight,
                     null
                 )
                 g.setComposite(ogComposite)

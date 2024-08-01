@@ -6,106 +6,120 @@
     "-1|0": [
       {
         "at": [
-          -1.4375,
-          0.4375
+          -2.0625,
+          0.625
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
-          -0.625,
-          1.125
+          -4.9375,
+          0.6875
+        ],
+        "type": "res/props/oak_tree_2.json"
+      },
+      {
+        "at": [
+          -2.8125,
+          1.625
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
-          -0.25,
-          0.1875
+          -1.9375,
+          1.1875
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -3.625,
+          0.9375
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
           -3.5,
-          1.1875
-        ],
-        "type": "res/props/oak_tree_2.json"
-      },
-      {
-        "at": [
-          -1.375,
           2.125
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
-          -0.5,
-          1.6875
-        ],
-        "type": "res/props/grass_1.json"
-      },
-      {
-        "at": [
-          -2.1875,
+          -4.6875,
           1.4375
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
-          -2.0625,
-          2.625
+          -5.8125,
+          1.6875
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
-          -3.25,
-          1.9375
-        ],
-        "type": "res/props/grass_1.json"
-      },
-      {
-        "at": [
-          -4.375,
-          2.1875
-        ],
-        "type": "res/props/grass_1.json"
-      },
-      {
-        "at": [
-          -0.5625,
-          1.375
+          -2.0,
+          0.875
         ],
         "type": "res/props/mushrooms.json"
       },
       {
         "at": [
-          -5.0,
-          2.875
+          -1.4375,
+          3.1875
         ],
         "type": "res/props/lake_small.json"
       },
       {
         "at": [
-          -2.0,
-          2.875
+          -4.4375,
+          3.1875
         ],
         "type": "res/props/lake_small.json"
       },
       {
         "at": [
-          -2.0,
-          5.875
+          -7.4375,
+          3.1875
         ],
         "type": "res/props/lake_small.json"
       },
       {
         "at": [
-          -5.0,
-          5.875
+          -0.9375,
+          0.375
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -0.5,
+          1.4375
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -0.0625,
+          0.0
+        ],
+        "type": "res/props/mushrooms.json"
+      },
+      {
+        "at": [
+          -10.4375,
+          3.1875
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          -10.4375,
+          0.1875
         ],
         "type": "res/props/lake_small.json"
       }
@@ -113,105 +127,175 @@
     "0|0": [
       {
         "at": [
-          0.5,
-          0.875
-        ],
-        "type": "res/props/grass_1.json"
-      },
-      {
-        "at": [
           1.5625,
-          1.125
+          3.1875
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          0.125,
+          0.625
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
-          1.1875,
-          0.375
-        ],
-        "type": "res/props/oak_tree_2.json"
-      },
-      {
-        "at": [
-          0.9375,
-          1.9375
+          0.3125,
+          2.125
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
-          1.75,
-          2.625
+          0.125,
+          0.0625
         ],
         "type": "res/props/grass_1.json"
-      },
-      {
-        "at": [
-          1.375,
-          0.5
-        ],
-        "type": "res/props/mushrooms.json"
-      },
-      {
-        "at": [
-          1.5625,
-          0.5625
-        ],
-        "type": "res/props/grass_1.json"
-      },
-      {
-        "at": [
-          1.875,
-          0.125
-        ],
-        "type": "res/props/grass_1.json"
-      },
-      {
-        "at": [
-          4.3125,
-          2.6875
-        ],
-        "type": "res/props/oak_tree_2.json"
       },
       {
         "at": [
           2.875,
-          2.375
+          2.1875
+        ],
+        "type": "res/props/oak_tree_2.json"
+      },
+      {
+        "at": [
+          1.4375,
+          1.875
         ],
         "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          4.5625,
+          3.1875
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          4.5625,
+          0.1875
+        ],
+        "type": "res/props/lake_small.json"
       }
     ],
     "0|-1": [
       {
         "at": [
-          0.6875,
-          -0.1875
+          0.4375,
+          -0.375
         ],
         "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          4.5625,
+          -5.8125
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          1.5625,
+          -5.8125
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          4.5625,
+          -2.8125
+        ],
+        "type": "res/props/lake_small.json"
       }
     ],
     "-1|-1": [
       {
         "at": [
-          -1.109375,
-          -0.09375
+          -2.546875,
+          -0.59375
         ],
         "type": "res/props/oak_tree_1.json"
       },
       {
         "at": [
-          -1.875,
-          -0.5
+          -3.3125,
+          -1.0
         ],
         "type": "res/props/grass_1.json"
       },
       {
         "at": [
-          -0.5,
-          -0.75
+          -1.9375,
+          -1.25
         ],
         "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -0.75,
+          -0.6875
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -2.875,
+          -0.0625
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -1.6875,
+          -0.3125
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -0.25,
+          -0.125
+        ],
+        "type": "res/props/oak_tree_2.json"
+      },
+      {
+        "at": [
+          -10.4375,
+          -2.8125
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          -10.4375,
+          -5.8125
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          -7.4375,
+          -5.8125
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          -1.4375,
+          -5.8125
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          -4.4375,
+          -5.8125
+        ],
+        "type": "res/props/lake_small.json"
       }
     ]
   }
