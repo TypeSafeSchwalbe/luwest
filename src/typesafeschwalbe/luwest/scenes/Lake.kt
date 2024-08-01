@@ -26,7 +26,7 @@ fun renderLakes(scene: Scene) {
             val sSize = conv.sizeOnScreen(renderer.size.clone())
             val sWidth = Math.ceil(sSize.x).toInt()
             val sHeight = Math.ceil(sSize.y).toInt()
-            buffer.world.add(sPos.y) { g ->
+            buffer.world.add(Double.NEGATIVE_INFINITY) { g ->
                 g.setColor(Color(126, 196, 193))
                 g.fillRect(
                     sPos.x.toInt(), sPos.y.toInt(), 

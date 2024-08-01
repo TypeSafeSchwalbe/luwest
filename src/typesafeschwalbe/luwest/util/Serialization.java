@@ -94,26 +94,30 @@ public final class Serialization {
             } else {
                 at = new Vec2();
             }
-            String spritePath = type.get("sprite").getAsString();
-            Resource<BufferedImage> sprite = Resource.image(spritePath, origin);
-            Vec2 size = new Vec2(type.get("size").getAsJsonArray());
+            String texPath = type.get("texture").getAsString();
+            Resource<BufferedImage> tex = Resource.image(texPath, origin);
+            long pixelsPerUnit = type.get("pixelsPerUnit").getAsLong();
             SpriteRenderer renderer = PropSerializer.RENDERER_CACHE.get(type);
             if(renderer == null) {
-                Vec2 srcOffset;
-                Vec2 srcSize;
-                if(type.has("area")) {
-                    JsonObject area = type.get("area").getAsJsonObject();
-                    srcOffset = new Vec2(area.get("offset").getAsJsonArray());
-                    srcSize = new Vec2(area.get("size").getAsJsonArray());
-                } else {
-                    srcOffset = new Vec2();
-                    srcSize = new Vec2(
-                        sprite.get().getWidth(), sprite.get().getHeight()
+                JsonArray framesJson = type.get("frames").getAsJsonArray();
+                SpriteRenderer.Frame[] frames 
+                    = new SpriteRenderer.Frame[framesJson.size()];
+                for(int frameI = 0; frameI < frames.length; frameI += 1) {
+                    JsonObject frame = framesJson.get(frameI).getAsJsonObject();
+                    frames[frameI] = new SpriteRenderer.Frame(
+                        new Vec2(frame.get("offset").getAsJsonArray()),
+                        new Vec2(frame.get("size").getAsJsonArray()),
+                        new Vec2(frame.get("anchor").getAsJsonArray())
                     );
                 }
-                Vec2 anchor = new Vec2(type.get("anchor").getAsJsonArray());
+                long frameDelay = type.has("frameDelay")
+                    ? type.get("frameDelay").getAsLong()
+                    : 0;
+                boolean renderReflection = type.has("renderReflection")
+                    ? type.get("renderReflection").getAsBoolean()
+                    : true;   
                 renderer = new SpriteRenderer(
-                    sprite, srcOffset, srcSize, anchor, size
+                    tex, frames, frameDelay, pixelsPerUnit, renderReflection
                 );
                 PropSerializer.RENDERER_CACHE.put(type, renderer);
             }
@@ -124,11 +128,9 @@ public final class Serialization {
                 for(JsonElement boxElem: colliders) {
                     JsonObject box = boxElem.getAsJsonObject();
                     Vec2 bOffset = new Vec2(box.get("offset").getAsJsonArray())
-                        .div(sprite.get().getWidth(), sprite.get().getHeight())
-                        .mul(size);
+                        .div(pixelsPerUnit);
                     Vec2 bSize = new Vec2(box.get("size").getAsJsonArray())
-                        .div(sprite.get().getWidth(), sprite.get().getHeight())
-                        .mul(size);
+                        .div(pixelsPerUnit);
                     collision.with(new Collision.BoxCollider(bOffset, bSize));
                 }
             }

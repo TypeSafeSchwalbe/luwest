@@ -25,8 +25,14 @@ public final class Camera {
         private double unitSize = 0.0;
         private Vec2 offset = new Vec2(0.0, 0.0);
 
+        public double sizeOnScreen(double size) {
+            return size * this.unitSize;
+        }
         public Vec2 sizeOnScreen(Vec2 size) { 
             return size.mul(this.unitSize); 
+        }
+        public double sizeInWorld(double size) {
+            return size / this.unitSize;
         }
         public Vec2 sizeInWorld(Vec2 size) { 
             return size.div(this.unitSize);

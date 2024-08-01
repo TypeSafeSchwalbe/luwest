@@ -21,6 +21,8 @@ fun overworld(): Scene {
             SpriteRenderer::renderAll,
             ::renderLakes,
             Camera::renderAll,
+
+            SpriteRenderer::updateFrames,
             
             Camera::showBuffers
         )

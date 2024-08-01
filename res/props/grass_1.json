@@ -1,7 +1,9 @@
 {
     "serializer": "prop",
-    "sprite": "res/textures/grass_1.png",
-    "anchor": [8, 13],
-    "size": [1.0, 1.0],
+    "texture": "res/textures/grass_1.png",
+    "frames": [
+        { "offset": [0, 0], "size": [16, 16], "anchor": [8, 13] }
+    ],
+    "pixelsPerUnit": 16,
     "colliders": []
 }

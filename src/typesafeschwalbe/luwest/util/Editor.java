@@ -100,7 +100,8 @@ public class Editor {
                 Camera::renderReflections,
     
                 staticScene::renderBackground,
-                SpriteRenderer::renderAll
+                SpriteRenderer::renderAll,
+                SpriteRenderer::updateFrames
             )
             .with(renderers)
             .with(

@@ -1,8 +1,10 @@
 {
     "serializer": "prop",
-    "sprite": "res/textures/mushrooms.png",
-    "anchor": [8, 16],
-    "size": [1.0, 1.0],
+    "texture": "res/textures/mushrooms.png",
+    "frames": [
+        { "offset": [0, 0], "size": [16, 16], "anchor": [8, 16] }
+    ],
+    "pixelsPerUnit": 16,
     "colliders": []
 }
 

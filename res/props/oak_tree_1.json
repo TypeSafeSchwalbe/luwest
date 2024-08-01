@@ -1,9 +1,10 @@
 {
     "serializer": "prop",
-    "sprite": "res/textures/oak_tree_1.png",
-    "area": { "offset": [0, 0], "size": [64, 80] },
-    "anchor": [31.5, 80],
-    "size": [4.0, 5.0],
+    "texture": "res/textures/oak_tree_1.png",
+    "frames": [
+        { "offset": [0, 0], "size": [64, 80], "anchor": [31.5, 80.0] }
+    ],
+    "pixelsPerUnit": 16,
     "colliders": [
         { "offset": [-3.5, -5], "size": [7, 5] }
     ]

@@ -122,6 +122,34 @@
           0.1875
         ],
         "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          -3.4375,
+          3.1875
+        ],
+        "type": "res/props/riverbed.json"
+      },
+      {
+        "at": [
+          -1.4375,
+          3.1875
+        ],
+        "type": "res/props/riverbed.json"
+      },
+      {
+        "at": [
+          -7.4375,
+          3.1875
+        ],
+        "type": "res/props/riverbed.json"
+      },
+      {
+        "at": [
+          -5.4375,
+          3.1875
+        ],
+        "type": "res/props/riverbed.json"
       }
     ],
     "0|0": [
@@ -155,8 +183,8 @@
       },
       {
         "at": [
-          2.875,
-          2.1875
+          3.0625,
+          2.4375
         ],
         "type": "res/props/oak_tree_2.json"
       },
@@ -180,6 +208,20 @@
           0.1875
         ],
         "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          2.5625,
+          3.1875
+        ],
+        "type": "res/props/riverbed.json"
+      },
+      {
+        "at": [
+          0.5625,
+          3.1875
+        ],
+        "type": "res/props/riverbed.json"
       }
     ],
     "0|-1": [
@@ -193,7 +235,7 @@
       {
         "at": [
           4.5625,
-          -5.8125
+          -2.8125
         ],
         "type": "res/props/lake_small.json"
       },
@@ -207,7 +249,7 @@
       {
         "at": [
           4.5625,
-          -2.8125
+          -5.8125
         ],
         "type": "res/props/lake_small.json"
       }
@@ -285,14 +327,14 @@
       },
       {
         "at": [
-          -1.4375,
+          -4.4375,
           -5.8125
         ],
         "type": "res/props/lake_small.json"
       },
       {
         "at": [
-          -4.4375,
+          -1.4375,
           -5.8125
         ],
         "type": "res/props/lake_small.json"

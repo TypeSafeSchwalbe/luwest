@@ -1,0 +1,14 @@
+{
+    "serializer": "prop",
+    "texture": "res/textures/river.png",
+    "frames": [
+        { "offset": [0, 0], "size": [32, 32], "anchor": [0, 0] },
+        { "offset": [32, 0], "size": [32, 32], "anchor": [32, 0] }
+    ],
+    "frameDelay": 1000,
+    "pixelsPerUnit": 16,
+    "renderReflection": false,
+    "colliders": [
+        { "offset": [0, 0], "size": [32, 32] }
+    ]
+}
