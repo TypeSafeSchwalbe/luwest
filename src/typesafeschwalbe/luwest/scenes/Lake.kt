@@ -7,7 +7,7 @@ import java.util.Optional
 
 import com.google.gson.JsonObject;
 
-import typesafeschwalbe.luwest.math.Vec2
+import typesafeschwalbe.luwest.math.*
 import typesafeschwalbe.luwest.engine.*
 import typesafeschwalbe.luwest.util.*
 import typesafeschwalbe.luwest.scenes.WaterRenderer
@@ -22,13 +22,17 @@ fun renderLakes(scene: Scene) {
         for((_, renderer, position) in scene.allWith(
             WaterRenderer::class, Position::class
         )) {
-            val sPos = conv.posOnScreen(position.value.clone())
-            val sSize = conv.sizeOnScreen(renderer.size.clone())
-            buffer.world.add(sPos.y) { g ->
+            val sTopLeft = conv.posOnScreen(position.value.clone())
+            val sBottomRight = conv.posOnScreen(
+                position.value.clone() + renderer.size
+            )
+            val sWidth = Math.ceil(sBottomRight.x - sTopLeft.x).toInt()
+            val sHeight = Math.ceil(sBottomRight.y - sTopLeft.y).toInt()
+            buffer.world.add(sTopLeft.y) { g ->
                 g.setColor(Color(126, 196, 193))
                 g.fillRect(
-                    sPos.x.toInt(), sPos.y.toInt(),
-                    sSize.x.toInt(), sSize.y.toInt()
+                    sTopLeft.x.toInt(), sTopLeft.y.toInt(), 
+                    sWidth, sHeight
                 )
                 val ogComposite = g.getComposite()
                 g.setComposite(AlphaComposite.getInstance(
@@ -36,10 +40,10 @@ fun renderLakes(scene: Scene) {
                 ))
                 g.drawImage(
                     buffer.reflectBuff,
-                    sPos.x.toInt(), sPos.y.toInt(),
-                    (sPos.x + sSize.x).toInt(), (sPos.y + sSize.y).toInt(),
-                    sPos.x.toInt(), sPos.y.toInt(),
-                    (sPos.x + sSize.x).toInt(), (sPos.y + sSize.y).toInt(),
+                    sTopLeft.x.toInt(), sTopLeft.y.toInt(),
+                    sBottomRight.x.toInt(), sBottomRight.y.toInt(),
+                    sTopLeft.x.toInt(), sTopLeft.y.toInt(),
+                    sBottomRight.x.toInt(), sBottomRight.y.toInt(),
                     null
                 )
                 g.setComposite(ogComposite)

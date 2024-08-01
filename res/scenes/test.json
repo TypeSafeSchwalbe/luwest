@@ -83,8 +83,29 @@
       },
       {
         "at": [
-          -5.375,
-          0.25
+          -5.0,
+          2.875
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          -2.0,
+          2.875
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          -2.0,
+          5.875
+        ],
+        "type": "res/props/lake_small.json"
+      },
+      {
+        "at": [
+          -5.0,
+          5.875
         ],
         "type": "res/props/lake_small.json"
       }
