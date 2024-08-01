@@ -18,7 +18,7 @@ public class StaticScene {
     public final long sectorSize;
 
     public StaticScene(String file, Resource.Origin origin) {
-        this.json = Resource.json(file, origin).get();
+        this.json = Resource.json(file, origin).get().getAsJsonObject();
         this.origin = origin;
         this.sectorSize = this.json.get("sector_size").getAsLong();
     }

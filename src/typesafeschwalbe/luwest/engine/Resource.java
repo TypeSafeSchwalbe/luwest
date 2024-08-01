@@ -10,9 +10,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,30 +24,32 @@ import java.util.concurrent.Future;
 
 import javax.imageio.ImageIO;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 public class Resource<T> {
 
-    private Optional<T> value = Optional.empty();
-    private final Future<T> loaded;
-
-    private Resource(Future<T> loaded) {
-        this.loaded = loaded;
+    @FunctionalInterface
+    public interface Decoder<T> {
+        T decode(InputStream is) throws Exception;
     }
 
-    public T get() {
-        if(!this.value.isPresent()) {
-            try {
-                this.value = Optional.of(this.loaded.get());
-            } catch(InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch(ExecutionException e) {
-                throw new RuntimeException(e);
-            }
+    public static final Decoder<String> STRING_DECODER 
+        = is -> new String(is.readAllBytes(), StandardCharsets.UTF_8);
+
+    public static final Decoder<BufferedImage> IMAGE_DECODER 
+        = ImageIO::read;
+
+    public static final Decoder<JsonElement> JSON_DECODER = is -> {
+        try(
+            InputStreamReader ir = new InputStreamReader(is)
+        ) {
+            return JsonParser.parseReader(ir);
         }
-        return this.value.get();
-    }
+    };
+
+    public static final Decoder<Font> FONT_DECODER 
+        = is -> Font.createFont(Font.TRUETYPE_FONT, is);
 
 
     @FunctionalInterface
@@ -73,65 +79,131 @@ public class Resource<T> {
     };
 
 
-    private static final HashMap<String, WeakReference<Resource<?>>> CACHE
-        = new HashMap<>();
     private static final ExecutorService READER_POOL
         = Executors.newFixedThreadPool(8);
 
-    @SuppressWarnings("unchecked")
-    private static <T> Resource<T> getCachedOrRead(
-        String path, Callable<T> reader
-    ) {
-        WeakReference<Resource<?>> cachedRef = Resource.CACHE.get(path);
-        if(cachedRef != null) {
-            Resource<?> cached = cachedRef.get();
-            if(cached != null) {
-                return (Resource<T>) cached;
+    public final String path;
+    public final Origin origin;
+    public final Decoder<T> decoder;
+    private Optional<Future<T>> decoded = Optional.empty();
+    private Optional<T> value = Optional.empty();
+
+    public Resource(String path, Origin origin, Decoder<T> decoder) {
+        this.path = path;
+        this.origin = origin;
+        this.decoder = decoder;
+        this.reload();
+    }
+
+    public void reload() {
+        this.decoded = Optional.of(Resource.READER_POOL.submit(() -> {
+            try(InputStream is = this.origin.read(this.path)) {
+                return this.decoder.decode(is);
+            } catch(Exception e) {
+                throw new RuntimeException(e);
+            }
+        }));
+    }
+
+    public T get() {
+        boolean getDecoded = this.value.isEmpty()
+            || (this.decoded.isPresent() && this.decoded.get().isDone());
+        if(getDecoded) {
+            try {
+                this.value = Optional.of(this.decoded.get().get());
+                this.decoded = Optional.empty();
+            } catch(InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch(ExecutionException e) {
+                throw new RuntimeException(e);
             }
         }
-        Future<T> read = READER_POOL.submit(reader);
-        Resource<T> resource = new Resource<>(read);
-        Resource.CACHE.put(path, new WeakReference<>(resource));
+        return this.value.get();
+    }
+
+
+    private static class CacheEntry {
+        final WeakReference<Resource<?>> resource;
+        long lastModified;
+
+        CacheEntry(final Resource<?> resource, long lastModified) {
+            this.resource = new WeakReference<>(resource);
+            this.lastModified = lastModified;
+        }
+    }
+
+    private static final HashMap<String, CacheEntry> CACHE = new HashMap<>();
+
+    private static long fileLastModified(String path) {
+        try {
+            Path file = Paths.get(path);
+            BasicFileAttributes attrs = Files
+                .readAttributes(file, BasicFileAttributes.class);
+            return attrs.lastModifiedTime().toMillis();
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static long lastHotReload = System.currentTimeMillis();
+    private static final long HOT_RELOAD_TIMER = 500;
+
+    public static void hotReloadExternals(Scene scene) {
+        long now = System.currentTimeMillis();
+        if(lastHotReload + HOT_RELOAD_TIMER > now) { return; }
+        lastHotReload = now;
+        LinkedList<String> removedPaths = new LinkedList<>();
+        for(String path: Resource.CACHE.keySet()) {
+            CacheEntry entry = Resource.CACHE.get(path);
+            Resource<?> resource = entry.resource.get();
+            if(resource == null) {
+                removedPaths.add(path);
+                continue;
+            }
+            if(resource.origin != Resource.EXTERNAL) { continue; }
+            long fileUpdateTime = Resource.fileLastModified(path);
+            if(fileUpdateTime == entry.lastModified) { continue; }
+            resource.reload();
+            entry.lastModified = fileUpdateTime;
+        }
+        for(String removedPath: removedPaths) {
+            Resource.CACHE.remove(removedPath);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Resource<T> getCachedOrRead(
+        String path, Origin origin, Decoder<T> decoder
+    ) {
+        CacheEntry cached = Resource.CACHE.get(path);
+        if(cached != null) {
+            Resource<?> resource = cached.resource.get();
+            if(resource != null) {
+                return (Resource<T>) resource;
+            }
+        }
+        Resource<T> resource = new Resource<>(path, origin, decoder);
+        long lastModified = origin == Resource.EXTERNAL
+            ? Resource.fileLastModified(path)
+            : 0;
+        Resource.CACHE.put(path, new CacheEntry(resource, lastModified));
         return resource;
     }
 
     public static Resource<String> string(String path, Origin origin) {
-        return Resource.getCachedOrRead(path, () -> {
-            try(InputStream is = origin.read(path)) {
-                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            } catch(IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return Resource.getCachedOrRead(path, origin, Resource.STRING_DECODER);
     }
 
     public static Resource<BufferedImage> image(String path, Origin origin) {
-        return Resource.getCachedOrRead(path, () -> {
-            try(InputStream is = origin.read(path)) {
-                return ImageIO.read(is);
-            } catch(IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return Resource.getCachedOrRead(path, origin, Resource.IMAGE_DECODER);
     }
 
-    public static Resource<JsonObject> json(String path, Origin origin) {
-        return Resource.getCachedOrRead(path, () -> {
-            try(
-                InputStream is = origin.read(path);
-                InputStreamReader ir = new InputStreamReader(is)
-            ) {
-                return JsonParser.parseReader(ir).getAsJsonObject();
-            }
-        });
+    public static Resource<JsonElement> json(String path, Origin origin) {
+        return Resource.getCachedOrRead(path, origin, Resource.JSON_DECODER);
     }
 
     public static Resource<Font> ttfFont(String path, Origin origin) {
-        return Resource.getCachedOrRead(path, () -> {
-            try(InputStream is = origin.read(path)) {
-                return Font.createFont(Font.TRUETYPE_FONT, is);
-            }
-        });
+        return Resource.getCachedOrRead(path, origin, Resource.FONT_DECODER);
     }
 
 }

@@ -47,7 +47,8 @@ public final class Serialization {
     }
 
     public static Entity createInstance(String typePath, Origin origin) {
-        JsonObject type = Resource.json(typePath, origin).get();
+        JsonObject type = Resource.json(typePath, origin)
+            .get().getAsJsonObject();
         String serializerName = type.get("serializer").getAsString();
         Serializer serializer = Serialization.SERIALIZERS.get(serializerName);
         return serializer.deserialize(Optional.empty(), type, origin)
@@ -58,7 +59,8 @@ public final class Serialization {
         JsonObject instance, Origin origin
     ) {
         String typePath = instance.get("type").getAsString();
-        JsonObject type = Resource.json(typePath, origin).get();
+        JsonObject type = Resource.json(typePath, origin)
+            .get().getAsJsonObject();
         String serializerName = type.get("serializer").getAsString();
         Serializer serializer = Serialization.SERIALIZERS.get(serializerName);
         if(serializer == null) {

@@ -84,6 +84,8 @@ public class Editor {
                     .with(Velocity.class, new Velocity())
             )
             .with(
+                Resource::hotReloadExternals,
+
                 this::manageTextInput,
                 this::runHotkeys,
                 Sectors::manageAll,
