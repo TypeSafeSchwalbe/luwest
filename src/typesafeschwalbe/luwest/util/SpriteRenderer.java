@@ -39,7 +39,8 @@ public class SpriteRenderer {
                 int sWidth = (int) Math.ceil(sSize.x);
                 int sHeight = (int) Math.ceil(sSize.y);
                 Vec2 anchorOffset = r.anchor.clone()
-                    .div(r.sprite.get().getWidth(), r.sprite.get().getHeight())
+                    .sub(r.srcOffset)
+                    .div(r.srcSize)
                     .mul(sSize);
                 Vec2 anchorSPos = conv.posOnScreen(worldPos.value.clone());
                 double sPosX = anchorSPos.x - anchorOffset.x;
@@ -70,7 +71,8 @@ public class SpriteRenderer {
                 int sWidth = (int) Math.ceil(sSize.x);
                 int sHeight = (int) Math.ceil(sSize.y);
                 Vec2 anchorOffset = r.anchor.clone()
-                    .div(r.sprite.get().getWidth(), r.sprite.get().getHeight())
+                    .sub(r.srcOffset)
+                    .div(r.srcSize)
                     .mul(sSize);
                 Vec2 anchorSPos = conv.posOnScreen(worldPos.value.clone());
                 Vec2 sPos = anchorSPos.clone().sub(anchorOffset);
