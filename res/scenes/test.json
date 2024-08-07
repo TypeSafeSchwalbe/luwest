@@ -150,6 +150,20 @@
           3.1875
         ],
         "type": "res/props/riverbed.json"
+      },
+      {
+        "at": [
+          -2.375,
+          2.3125
+        ],
+        "type": "res/props/grass_1.json"
+      },
+      {
+        "at": [
+          -0.875,
+          2.3125
+        ],
+        "type": "res/props/grass_1.json"
       }
     ],
     "0|0": [

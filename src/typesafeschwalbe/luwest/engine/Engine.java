@@ -36,7 +36,7 @@ public class Engine {
     private final Window window;
     private Scene scene;
     private double deltaTime;
-    private double fpsTarget = 60.0;
+    public double fpsTarget = 60.0;
 
     private Engine(String windowTitle) {
         this.window = new Window(windowTitle, 854, 480);

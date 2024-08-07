@@ -97,7 +97,7 @@ public class SpriteRenderer {
                     (int) sPos.x + sWidth, (int) sPos.y + sHeight,
                     (int) frame.offset.x, (int) frame.offset.y,
                     (int) (frame.offset.x + frame.size.x), 
-                    (int) (frame.offset.y + frame.size.y), 
+                    (int) (frame.offset.y + frame.size.y),
                     null
                 ));
             }
@@ -107,10 +107,11 @@ public class SpriteRenderer {
     public static void updateFrames(Scene scene) {
         for(Entity thing: scene.allWith(SpriteRenderer.class)) {
             SpriteRenderer r = thing.get(SpriteRenderer.class);
-            long now = System.currentTimeMillis();
-            if(r.lastFrameTime + r.frameDelay <= now) {
-                r.lastFrameTime = now;
-                r.currentFrameIdx = (r.currentFrameIdx + 1) % r.frames.length;
+            long diff = System.currentTimeMillis() - r.lastFrameTime;
+            if(r.frameDelay != 0) {
+                r.lastFrameTime += diff - (diff % r.frameDelay);
+                r.currentFrameIdx += diff / r.frameDelay;
+                r.currentFrameIdx %= r.frames.length;
             }
         }
     }

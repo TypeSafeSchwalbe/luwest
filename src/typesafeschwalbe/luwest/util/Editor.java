@@ -385,10 +385,13 @@ public class Editor {
     private static void zoomCamera(Scene scene) {
         for(Entity camera: scene.allWith(Camera.Configuration.class)) {
             Camera.Configuration conf = camera.get(Camera.Configuration.class);
-            conf.distance = Math.clamp(
-                conf.distance 
-                    + Engine.window().scrollOffset() * Editor.CAMERA_ZOOM_SPEED,
-                Editor.CAMERA_MIN_ZOOM * Editor.CAMERA_ZOOM_SPEED,
+            conf.distance = Math.min(
+                Math.max(
+                    conf.distance 
+                        + Engine.window().scrollOffset() 
+                        * Editor.CAMERA_ZOOM_SPEED,
+                    Editor.CAMERA_MIN_ZOOM * Editor.CAMERA_ZOOM_SPEED
+                ),
                 Editor.CAMERA_MAX_ZOOM * Editor.CAMERA_ZOOM_SPEED
             );
         }
